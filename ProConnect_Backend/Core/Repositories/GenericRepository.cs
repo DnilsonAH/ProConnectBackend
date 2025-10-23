@@ -1,0 +1,44 @@
+using Microsoft.EntityFrameworkCore;
+using ProConnect_Backend.Core.Repositories.Interfaces;
+using ProConnect_Backend.Infrastructure.Data;
+
+namespace ProConnect_Backend.Core.Repositories;
+
+public class GenericRepository<TEntity>: IGenericRepository<TEntity> where TEntity : class
+{
+    protected readonly ProConnectDbContext _dbContext;
+    public GenericRepository(ProConnectDbContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+    public async Task<IEnumerable<TEntity>> GetAllAsync()
+    {
+        return await _dbContext.Set<TEntity>().ToListAsync();
+    }
+    public async Task<TEntity?> GetByIdAsync(int id)
+    {
+        return await _dbContext.Set<TEntity>().FindAsync(id);
+    }
+
+    public async Task AddAsync(TEntity entity)
+    {
+        await _dbContext.Set<TEntity>().AddAsync(entity);
+        await _dbContext.SaveChangesAsync();
+    }
+    public async Task UpdateAsync(TEntity entity)
+    {
+        _dbContext.Set<TEntity>().Update(entity);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var entity = await GetByIdAsync(id);
+        if (entity != null)
+        {
+            _dbContext.Set<TEntity>().Remove(entity);
+            await _dbContext.SaveChangesAsync();
+        }
+    }
+
+}

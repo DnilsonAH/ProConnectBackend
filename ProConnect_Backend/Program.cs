@@ -1,41 +1,53 @@
+using Microsoft.EntityFrameworkCore;
+using ProConnect_Backend.Core.Mapping;
+using ProConnect_Backend.Infrastructure.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// Obtener la cadena de conexión desde appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-var app = builder.Build();
+/* +---------------------------------------------------------------------------------------------------------+
+   |                                        Registro de servicios                                            |
+   +---------------------------------------------------------------------------------------------------------+*/
+builder.Services.AddControllers(); // Agregar servicios de controladores
+builder.Services.AddEndpointsApiExplorer(); // Agregar servicios para explorar endpoints
+builder.Services.AddSwaggerGen(); // Agregar servicios para generar Swagger
 
-// Configure the HTTP request pipeline.
+builder.Services.AddAutoMapper(typeof(AutoMapping).Assembly); //Registrar AutoMapper y escanear el ensamblado donde se encuentra AutoMapping
+
+builder.Services.AddDbContext<ProConnectDbContext>(options =>
+{
+    options.UseMySql(
+        connectionString,
+        ServerVersion.AutoDetect(connectionString),
+        mySqlOptions => mySqlOptions.EnableRetryOnFailure()
+    );
+});
+
+
+
+
+/* +---------------------------------------------------------------------------------------------------------+
+   |                               Registro de Repositorios y Servicios                                      |
+   +---------------------------------------------------------------------------------------------------------+*/
+// Agregar registros de repositorios | Emjemplo: builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// Agregar registros de servicios | Ejemplo: builder.Services.AddScoped<IUserService, UserService>();
+
+
+
+
+/* +---------------------------------------------------------------------------------------------------------+
+   |                                        Construcción de la aplicación                                    |
+   +---------------------------------------------------------------------------------------------------------+*/
+var app = builder.Build(); // Construir la aplicación
+
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
