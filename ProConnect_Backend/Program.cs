@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProConnect_Backend.Core.Mapping;
+using ProConnect_Backend.Core.Repositories.Interfaces;
 using ProConnect_Backend.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,9 +30,11 @@ builder.Services.AddDbContext<ProConnectDbContext>(options =>
 
 
 /* +---------------------------------------------------------------------------------------------------------+
-   |                               Registro de Repositorios y Servicios                                      |
+   |                               Registro de UnitOfWork y Servicios                                        |
    +---------------------------------------------------------------------------------------------------------+*/
-// Agregar registros de repositorios | Emjemplo: builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // Registrar UnitOfWork para inyección de dependencias
+// Agregar registros de repositorios | Esto en caso de ser necesario pero el unitofwork ya los maneja todos los repositorios
+
 
 // Agregar registros de servicios | Ejemplo: builder.Services.AddScoped<IUserService, UserService>();
 
