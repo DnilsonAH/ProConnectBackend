@@ -1,0 +1,14 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*", 
+  // Database connection string ejemplos reemplazar con los tuyos
+  
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=ProConnectDB;Trusted_Connection=True;MultipleActiveResultSets=true"
+  }
+}
