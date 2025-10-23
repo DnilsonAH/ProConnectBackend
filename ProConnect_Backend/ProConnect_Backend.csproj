@@ -33,7 +33,6 @@
 
     <ItemGroup>
       <Folder Include="Api\Controllers\" />
-      <Folder Include="Core\DTOs\" />
     </ItemGroup>
 
 </Project>
