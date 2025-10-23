@@ -9,6 +9,6 @@
   // Database connection string ejemplos reemplazar con los tuyos
   
   "ConnectionStrings": {
-    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=ProConnectDB;Trusted_Connection=True;MultipleActiveResultSets=true"
+    "DefaultConnection": "Server=LocalHost;Port=3306;Database=nombreBD;Uid=root;Pwd=password;"
   }
 }
