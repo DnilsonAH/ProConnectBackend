@@ -35,3 +35,26 @@ x86/
 .idea/**/uiDesigner.xml
 .idea/**/assetWizardSettings.xml
 
+
+## Archivos de Visual Studio (si colaboras con otros)
+.vs/
+.vscode/
+
+## Paquetes y dependencias
+packages/
+*.nupkg
+*.snupkg
+
+## Archivos de métricas y pruebas
+*.coverage
+*.coveragexml
+TestResult.xml
+
+## Archivos sensibles y de entorno
+appsettings.json
+appsettings.Development.json
+secrets.json
+.env
+
+## Archivos de publicación
+publish/
