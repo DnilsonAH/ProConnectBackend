@@ -52,7 +52,7 @@ public class UnitOfWork: IUnitOfWork
         SpecialtyRepository = specialtyRepository;
         UserRepository = userRepository;
         UserRoleRepository = userRoleRepository;
-        VerificationDocumentRepository = verificationDocumentRepository;
+        VerificationDocumentRepository = VerificationDocumentRepository;
         VerificationRepository = verificationRepository;
         VideoCallRepository = videoCallRepository;
     }

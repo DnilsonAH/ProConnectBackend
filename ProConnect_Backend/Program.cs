@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProConnect_Backend.Core.Mapping;
+using ProConnect_Backend.Core.Repositories;
 using ProConnect_Backend.Core.Repositories.Interfaces;
 using ProConnect_Backend.Infrastructure.Data;
 
@@ -30,11 +31,27 @@ builder.Services.AddDbContext<ProConnectDbContext>(options =>
 
 
 /* +---------------------------------------------------------------------------------------------------------+
-   |                               Registro de UnitOfWork y Servicios                                        |
+   |                          Registro de UnitOfWork, Repositorios y Servicios                               |
    +---------------------------------------------------------------------------------------------------------+*/
+// Agregar registro de UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // Registrar UnitOfWork para inyección de dependencias
-// Agregar registros de repositorios | Esto en caso de ser necesario pero el unitofwork ya los maneja todos los repositorios
 
+// Agregar registros de repositorios | Emjemplo: builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
+builder.Services.AddScoped<IConsultationRepository, ConsultationRepository>();
+builder.Services.AddScoped<IDistributionRepository, DistributionRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IProfessionalPaymentInfoRepository, ProfessionalPaymentInfoRepository>();
+builder.Services.AddScoped<IProfessionalProfileRepository, ProfessionalProfileRepository>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+builder.Services.AddScoped<IVerificationDocumentRepository, VerificationDocumentRepository>();
+builder.Services.AddScoped<IVerificationRepository, VerificationRepository>();
+builder.Services.AddScoped<IVideoCallRepository, VideoCallRepository>();
 
 // Agregar registros de servicios | Ejemplo: builder.Services.AddScoped<IUserService, UserService>();
 

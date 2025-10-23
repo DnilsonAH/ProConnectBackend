@@ -4,9 +4,9 @@ using ProConnect_Backend.Infrastructure.Data;
 
 namespace ProConnect_Backend.Core.Repositories;
 
-public class VerificationRepository : GenericRepository<Verification>, IVerificationRepository
+public class UserRepository: GenericRepository<User>, IUserRepository
 {
-    public VerificationRepository(ProConnectDbContext context) : base(context)
+    public UserRepository(ProConnectDbContext context) : base(context)
     {
     }
     //Agregar los metodos específicos
