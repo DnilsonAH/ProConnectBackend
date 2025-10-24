@@ -4,42 +4,46 @@ using ProConnect_Backend.Core.Services.interfaces;
 
 namespace ProConnect_Backend.Core.Services;
 
-public class GenericService<Tdto>: IGenericService<Tdto> where Tdto : class
+public class GenericService<Tentity, Tdto> : IGenericService<Tdto> where Tentity : class where Tdto : class
 {
-    //Podemos usar UnitOfWork aqui en ves de repositorio per de momento dejemoslo asi
-    //inyeccion de repositorio generico y mapper (el mapper neeita que la dto de la entidad exista)
-    protected readonly IGenericRepository<Tdto> _repository;
-    
+    //inyecto el repositorio y el mapper
+    protected readonly IGenericRepository<Tentity> _repository;
     protected readonly IMapper _mapper;
-    
-    public GenericService(IGenericRepository<Tdto> repository)
+    public GenericService(IGenericRepository<Tentity> repository, IMapper mapper)
     {
         _repository = repository;
+        _mapper = mapper;
+
     }
     
+    public virtual async Task<IEnumerable<Tdto>> GetAllAsync()
+    {
+        var entities = await _repository.GetAllAsync();
+        var dtos = _mapper.Map<IEnumerable<Tdto>>(entities);
+        return dtos;
+    }
     
-    public Task AddAsync(Tdto dto)
+    public virtual async Task<Tdto?> GetByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        var entity = await _repository.GetByIdAsync(id);
+        if (entity == null) return null;
+        var dto = _mapper.Map<Tdto>(entity);
+        return dto;
+    }
+    public virtual async Task AddAsync(Tdto dto)
+    {
+        var entity = _mapper.Map<Tentity>(dto);
+        _repository.AddAsync(entity);
+    }
+    public virtual async Task UpdateAsync(Tdto dto)
+    {
+        var entity = _mapper.Map<Tentity>(dto);
+        _repository.UpdateAsync(entity);
     }
 
-    public Task DeleteAsync(int id)
+    public virtual async Task DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        _repository.DeleteAsync(id);
     }
 
-    public Task<IEnumerable<Tdto>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Tdto?> GetByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateAsync(Tdto dto)
-    {
-        throw new NotImplementedException();
-    }
 }

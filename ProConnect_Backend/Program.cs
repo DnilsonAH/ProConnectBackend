@@ -54,7 +54,23 @@ builder.Services.AddScoped<IVerificationRepository, VerificationRepository>();
 builder.Services.AddScoped<IVideoCallRepository, VideoCallRepository>();
 
 // Agregar registros de servicios | Ejemplo: builder.Services.AddScoped<IUserService, UserService>();
-
+/*
+ *builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
+ *builder.Services.AddScoped<IConsultationService, ConsultationService>();
+ *builder.Services.AddScoped<IDistributionService, DistributionService>();
+ *builder.Services.AddScoped<INotificationService, NotificationService>();
+ *builder.Services.AddScoped<IPaymentService, PaymentService>();
+ *builder.Services.AddScoped<IProfessionalPaymentInfoService, ProfessionalPaymentInfoService>();
+ *builder.Services.AddScoped<IProfessionalProfileService, ProfessionalProfileService>();
+ *builder.Services.AddScoped<IReviewService, ReviewService>();
+ *builder.Services.AddScoped<IRoleService, RoleService>();
+ *builder.Services.AddScoped<ISpecialtyService, SpecialtyService>();
+ *builder.Services.AddScoped<IUserService, UserService>();
+ *builder.Services.AddScoped<IUserRoleService, UserRoleService>();
+ *builder.Services.AddScoped<IVerificationDocumentService, VerificationDocumentService>();
+ *builder.Services.AddScoped<IVerificationService, VerificationService>();
+ *builder.Services.AddScoped<IVideoCallService, VideoCallService>();
+*/
 
 
 
