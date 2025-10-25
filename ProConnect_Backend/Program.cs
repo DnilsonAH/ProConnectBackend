@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using ProConnect_Backend.Core.Mapping;
-using ProConnect_Backend.Core.Repositories;
-using ProConnect_Backend.Core.Repositories.Interfaces;
+using ProConnect_Backend.Application.Mapping;
+using ProConnect_Backend.Domain.Entities;
+using ProConnect_Backend.Domain.Ports.IRepositories;
+using ProConnect_Backend.Infrastructure.Adapters.Repositories;
 using ProConnect_Backend.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);

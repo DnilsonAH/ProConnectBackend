@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProConnect_Backend.Infrastr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProConnect_Backend.Domain", "ProConnect_Backend.Domain\ProConnect_Backend.Domain.csproj", "{F4EC9B48-5F81-4597-A271-6C8A321515B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProConnect_Backend.Application", "ProConnect_Backend.Application\ProConnect_Backend.Application.csproj", "{8889975A-5349-45EA-88F2-16068B48A8C3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProConnect_Backend.Application", "ProConnect_Backend.Application\ProConnect_Backend.Application.csproj", "{9F8B5B8C-F673-4233-A79F-FC6CDC80F313}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,9 +26,9 @@ Global
 		{F4EC9B48-5F81-4597-A271-6C8A321515B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4EC9B48-5F81-4597-A271-6C8A321515B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4EC9B48-5F81-4597-A271-6C8A321515B7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8889975A-5349-45EA-88F2-16068B48A8C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8889975A-5349-45EA-88F2-16068B48A8C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8889975A-5349-45EA-88F2-16068B48A8C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8889975A-5349-45EA-88F2-16068B48A8C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F8B5B8C-F673-4233-A79F-FC6CDC80F313}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F8B5B8C-F673-4233-A79F-FC6CDC80F313}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F8B5B8C-F673-4233-A79F-FC6CDC80F313}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F8B5B8C-F673-4233-A79F-FC6CDC80F313}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

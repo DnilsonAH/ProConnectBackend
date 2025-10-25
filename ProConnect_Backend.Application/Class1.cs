@@ -1,4 +1,4 @@
-﻿namespace ProConnect_Backend.Aplication;
+﻿namespace ProConnect_Backend.Application;
 
 public class Class1
 {

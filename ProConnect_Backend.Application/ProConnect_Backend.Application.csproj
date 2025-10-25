@@ -1,15 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-      <ProjectReference Include="..\ProConnect_Backend.Domain\ProConnect_Backend.Domain.csproj" />
       <ProjectReference Include="..\ProConnect_Backend.Infrastructure\ProConnect_Backend.Infrastructure.csproj" />
+      <ProjectReference Include="..\ProConnect_Backend.Domain\ProConnect_Backend.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="DTOs\ProfessionalProfileDtos\" />
     </ItemGroup>
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>ProConnect_Backend.Aplication</RootNamespace>
     </PropertyGroup>
 
 </Project>

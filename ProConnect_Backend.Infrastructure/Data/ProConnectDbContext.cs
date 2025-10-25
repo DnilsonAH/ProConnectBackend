@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using ProConnect_Backend.Infrastructure.Entities;
+using ProConnect_Backend.Domain.Entities;
 
 namespace ProConnect_Backend.Infrastructure.Data;
 
