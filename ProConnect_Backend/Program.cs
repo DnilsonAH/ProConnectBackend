@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using ProConnect_Backend.Application.Mapping;
 using ProConnect_Backend.Domain.Entities;
+using ProConnect_Backend.Domain.Ports;
 using ProConnect_Backend.Domain.Ports.IRepositories;
+using ProConnect_Backend.Infrastructure.Adapters;
 using ProConnect_Backend.Infrastructure.Adapters.Repositories;
 using ProConnect_Backend.Infrastructure.Data;
 
@@ -38,7 +40,7 @@ builder.Services.AddDbContext<ProConnectDbContext>(options =>
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // Registrar UnitOfWork para inyección de dependencias
 
 // Agregar registros de repositorios | Emjemplo: builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
+/*builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
 builder.Services.AddScoped<IConsultationRepository, ConsultationRepository>();
 builder.Services.AddScoped<IDistributionRepository, DistributionRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
@@ -52,7 +54,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 builder.Services.AddScoped<IVerificationDocumentRepository, VerificationDocumentRepository>();
 builder.Services.AddScoped<IVerificationRepository, VerificationRepository>();
-builder.Services.AddScoped<IVideoCallRepository, VideoCallRepository>();
+builder.Services.AddScoped<IVideoCallRepository, VideoCallRepository>();*/
 
 // Agregar registros de servicios | Ejemplo: builder.Services.AddScoped<IUserService, UserService>();
 /*

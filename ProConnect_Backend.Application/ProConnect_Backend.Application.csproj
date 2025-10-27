@@ -11,6 +11,8 @@
 
     <ItemGroup>
       <Folder Include="DTOs\ProfessionalProfileDtos\" />
+      <Folder Include="Feature\Users\Command\" />
+      <Folder Include="Feature\Users\Query\" />
     </ItemGroup>
 
     <PropertyGroup>

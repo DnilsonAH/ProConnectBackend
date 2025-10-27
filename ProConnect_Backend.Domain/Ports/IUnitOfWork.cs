@@ -1,6 +1,6 @@
 using ProConnect_Backend.Domain.Ports.IRepositories;
 
-namespace ProConnect_Backend.Domain.Ports.IRepositories;
+namespace ProConnect_Backend.Domain.Ports;
 
 public interface IUnitOfWork : IDisposable
 {
@@ -22,5 +22,5 @@ public interface IUnitOfWork : IDisposable
     IVideoCallRepository VideoCallRepository { get; }
     
     // Commmit de cambios
-    Task<int> CompleteAsync();
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

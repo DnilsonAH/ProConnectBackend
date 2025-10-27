@@ -9,10 +9,6 @@
       <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Adapters\" />
-    </ItemGroup>
-
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
