@@ -10,9 +10,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Configuration\" />
       <Folder Include="DTOs\ProfessionalProfileDtos\" />
-      <Folder Include="Feature\Users\Command\" />
-      <Folder Include="Feature\Users\Query\" />
+      <Folder Include="UseCases\Users\Command\" />
+      <Folder Include="UseCases\Users\Query\" />
     </ItemGroup>
 
     <PropertyGroup>
