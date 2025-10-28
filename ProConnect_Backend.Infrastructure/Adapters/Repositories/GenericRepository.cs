@@ -15,7 +15,7 @@ public class GenericRepository<TEntity>: IGenericRepository<TEntity> where TEnti
     {
         return await _dbContext.Set<TEntity>().ToListAsync();
     }
-    public async Task<TEntity?> GetByIdAsync(int id)
+    public async Task<TEntity?> GetByIdAsync(Guid id)
     {
         return await _dbContext.Set<TEntity>().FindAsync(id);
     }
@@ -25,20 +25,15 @@ public class GenericRepository<TEntity>: IGenericRepository<TEntity> where TEnti
         await _dbContext.Set<TEntity>().AddAsync(entity);
         await _dbContext.SaveChangesAsync();
     }
-    public async Task UpdateAsync(TEntity entity)
+    public void Update(TEntity entity)
     {
         _dbContext.Set<TEntity>().Update(entity);
-        await _dbContext.SaveChangesAsync();
+        _dbContext.SaveChanges();
     }
 
-    public async Task DeleteAsync(int id)
+    public void Delete(TEntity entity)
     {
-        var entity = await GetByIdAsync(id);
-        if (entity != null)
-        {
-            _dbContext.Set<TEntity>().Remove(entity);
-            await _dbContext.SaveChangesAsync();
-        }
+        _dbContext.Set<TEntity>().Remove(entity);
+        _dbContext.SaveChanges();
     }
-
 }
