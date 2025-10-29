@@ -4,5 +4,5 @@ namespace ProConnect_Backend.Domain.Ports.IRepositories;
 
 public interface IRoleRepository : IGenericRepository<Role>
 {
-    
+    Task<Role?> GetByNameAsync(string roleName);
 }
