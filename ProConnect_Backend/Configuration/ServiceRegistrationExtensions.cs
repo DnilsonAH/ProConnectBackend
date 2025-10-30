@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using ProConnect_Backend.Domain.Ports;
 using ProConnect_Backend.Domain.Ports.IRepositories;
 using ProConnect_Backend.Domain.Ports.IServices;
@@ -103,8 +104,7 @@ public static class ServiceRegistrationExtensions
                     ClockSkew = TimeSpan.Zero
                 };
             });
-
-        
+      
         
         return services;
     }
