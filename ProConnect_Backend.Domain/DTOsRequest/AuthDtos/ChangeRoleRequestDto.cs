@@ -8,6 +8,6 @@ public class ChangeRoleRequestDto
     public uint UserId { get; set; }
 
     [Required(ErrorMessage = "El nombre del rol es requerido")]
-    [RegularExpression("^(Admin|Professional|User)$", ErrorMessage = "El rol debe ser Admin, Professional o User")]
+    [RegularExpression("^(Admin|Professional|User)$", ErrorMessage = "No existe el rol especificado")]
     public string RoleName { get; set; } = null!;
 }
