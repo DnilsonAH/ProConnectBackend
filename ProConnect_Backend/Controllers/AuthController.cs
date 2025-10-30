@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ProConnect_Backend.Application.DTOs.AuthDtos;
-using ProConnect_Backend.Application.Ports;
+using ProConnect_Backend.Domain.DTOsRequest.AuthDtos;
+using ProConnect_Backend.Domain.Ports.IServices;
 
-namespace ProConnect_Backend.Api.Controllers;
+namespace ProConnect_Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

@@ -1,6 +1,6 @@
-using ProConnect_Backend.Application.DTOs.AuthDtos;
+using ProConnect_Backend.Domain.DTOsRequest.AuthDtos;
 
-namespace ProConnect_Backend.Application.Ports;
+namespace ProConnect_Backend.Domain.Ports.IServices;
 
 public interface IAuthService
 {

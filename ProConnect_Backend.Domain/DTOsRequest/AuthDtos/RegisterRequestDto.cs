@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ProConnect_Backend.Application.DTOs.AuthDtos;
+namespace ProConnect_Backend.Domain.DTOsRequest.AuthDtos;
 
 public class RegisterRequestDto
 {

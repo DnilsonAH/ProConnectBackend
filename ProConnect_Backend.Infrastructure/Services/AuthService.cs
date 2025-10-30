@@ -1,9 +1,9 @@
-using ProConnect_Backend.Application.DTOs.AuthDtos;
-using ProConnect_Backend.Application.Ports;
+using ProConnect_Backend.Domain.DTOsRequest.AuthDtos;
 using ProConnect_Backend.Domain.Entities;
 using ProConnect_Backend.Domain.Ports;
+using ProConnect_Backend.Domain.Ports.IServices;
 
-namespace ProConnect_Backend.Application.Services;
+namespace ProConnect_Backend.Infrastructure.Services;
 
 public class AuthService : IAuthService
 {

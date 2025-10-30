@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace ProConnect_Backend.Api.Controllers;
+namespace ProConnect_Backend.Controllers;
 
 /// <summary>
 /// Ejemplo de controller con endpoints protegidos por JWT y roles
