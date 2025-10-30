@@ -31,9 +31,48 @@ public static class ServiceRegistrationExtensions
         // Los repositorios específicos son creados por el UoW,
         // pero si necesitaras inyectar uno directamente, lo registras aquí:
         
-        services.AddScoped<IUserRepository, UserRepository>();
+        /*esto asi o que cree repositorio internanmente en el unitofwork con el dbcontext:
+         public class UnitOfWork : IUnitOfWork
+        {
+            private readonly ProConnectDbContext _dbContext;
+
+            public IAvailabilityRepository AvailabilityRepository { get; }
+            public IUserRepository UserRepository { get; }
+
+            public UnitOfWork(ProConnectDbContext dbContext)
+            {
+                _dbContext = dbContext;
+                AvailabilityRepository = new AvailabilityRepository(_dbContext);
+                UserRepository = new UserRepository(_dbContext);
+                // y así con los demás
+            }
+
+            public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+                => await _dbContext.SaveChangesAsync(cancellationToken);
+
+            public void Dispose()
+            {
+                _dbContext.Dispose();
+                GC.SuppressFinalize(this);
+            }
+        }
+         */
+        services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
+        services.AddScoped<IConsultationRepository, ConsultationRepository>();
+        services.AddScoped<IDistributionRepository, DistributionRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
+        services.AddScoped<IProfessionalPaymentInfoRepository, ProfessionalPaymentInfoRepository>();
+        services.AddScoped<IProfessionalProfileRepository, ProfessionalProfileRepository>();
+        services.AddScoped<IReviewRepository, ReviewRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+        services.AddScoped<IVerificationDocumentRepository, VerificationDocumentRepository>();
+        services.AddScoped<IVerificationRepository, VerificationRepository>();
+        services.AddScoped<IVideoCallRepository, VideoCallRepository>();
+
         
         // 3. Registro de Servicios (Adaptadores) servicios de terceros JWT, Hasheo de contraseñas
         services.AddScoped<IAuthService, AuthService>();
