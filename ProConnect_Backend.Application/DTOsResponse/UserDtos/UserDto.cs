@@ -1,4 +1,4 @@
-namespace ProConnect_Backend.Application.DTOs.UserDtos;
+namespace ProConnect_Backend.Application.DTOsResponse.UserDtos;
 
 public class UserDto
 {
