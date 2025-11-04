@@ -1,10 +1,10 @@
-using Microsoft.EntityFrameworkCore;
-using ProConnect_Backend.Domain.Entities;
+/*using Microsoft.EntityFrameworkCore;
 using ProConnect_Backend.Domain.Ports.IRepositories;
 using ProConnect_Backend.Infrastructure.Data;
 
 namespace ProConnect_Backend.Infrastructure.Adapters.Repositories;
 
+/*
 public class UserRepository: GenericRepository<User>, IUserRepository
 {
     public UserRepository(ProConnectDbContext context) : base(context)
@@ -30,4 +30,4 @@ public class UserRepository: GenericRepository<User>, IUserRepository
             .ThenInclude(ur => ur.Role)
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
-}
+}#1#*/

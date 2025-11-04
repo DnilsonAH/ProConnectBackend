@@ -1,6 +1,5 @@
 using AutoMapper;
 using ProConnect_Backend.Application.DTOsResponse.UserDtos;
-using ProConnect_Backend.Domain.Entities;
 
 namespace ProConnect_Backend.Application.Mapping;
 
@@ -17,10 +16,9 @@ public class AutoMapping : Profile
     {
         //Dto -> Entity (Input para POST/PUT)
         //ejemplo: CreateMap<UserDto, User>();
-        CreateMap<UserDto, User>();
         
         //Entity -> Dto (Output para GET)
         //ejemplo: CreateMap<User, UserDto>();
-        CreateMap<User, UserDto>();
-    }
+
+         }
 }

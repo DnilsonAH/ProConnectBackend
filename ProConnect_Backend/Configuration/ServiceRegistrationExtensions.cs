@@ -5,10 +5,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ProConnect_Backend.Domain.Ports;
 using ProConnect_Backend.Domain.Ports.IRepositories;
-using ProConnect_Backend.Domain.Ports.IServices;
+/*using ProConnect_Backend.Domain.Ports.IServices;
 using ProConnect_Backend.Infrastructure.Adapters;
 using ProConnect_Backend.Infrastructure.Adapters.Repositories;
-using ProConnect_Backend.Infrastructure.Data;
+using ProConnect_Backend.Infrastructure.Data;*/
 using ProConnect_Backend.Infrastructure.Services;
 
 namespace ProConnect_Backend.Configuration;
@@ -19,16 +19,16 @@ public static class ServiceRegistrationExtensions
         IConfiguration configuration)
     {
         // 1. Configuración del DbContext (MySQL)
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        /*var connectionString = configuration.GetConnectionString("DefaultConnection");
         services.AddDbContext<ProConnectDbContext>(options =>
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
                 mySqlOptions => mySqlOptions.EnableRetryOnFailure(
                     maxRetryCount: 5,
                     maxRetryDelay: TimeSpan.FromSeconds(10),
                     errorNumbersToAdd: null))
-        );
+        );*/
         // Registro de UnitOfWrok
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+//        services.AddScoped<IUnitOfWork, UnitOfWork>();
         // Los repositorios específicos son creados por el UoW,
         // pero si necesitaras inyectar uno directamente, lo registras aquí:
         
@@ -58,26 +58,12 @@ public static class ServiceRegistrationExtensions
             }
         }
          */
-        services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
-        services.AddScoped<IConsultationRepository, ConsultationRepository>();
-        services.AddScoped<IDistributionRepository, DistributionRepository>();
-        services.AddScoped<INotificationRepository, NotificationRepository>();
-        services.AddScoped<IPaymentRepository, PaymentRepository>();
-        services.AddScoped<IProfessionalPaymentInfoRepository, ProfessionalPaymentInfoRepository>();
-        services.AddScoped<IProfessionalProfileRepository, ProfessionalProfileRepository>();
-        services.AddScoped<IReviewRepository, ReviewRepository>();
-        services.AddScoped<IRoleRepository, RoleRepository>();
-        services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IUserRoleRepository, UserRoleRepository>();
-        services.AddScoped<IVerificationDocumentRepository, VerificationDocumentRepository>();
-        services.AddScoped<IVerificationRepository, VerificationRepository>();
-        services.AddScoped<IVideoCallRepository, VideoCallRepository>();
+        //services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
+
 
         
         // 3. Registro de Servicios (Adaptadores) servicios de terceros JWT, Hasheo de contraseñas
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IJwtService, JwtService>();
+
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         
         // 4. Configuración de Autenticación JWT

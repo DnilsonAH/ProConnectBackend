@@ -2,6 +2,8 @@
 
     <ItemGroup>
       <Folder Include="DTOsRequest\" />
+      <Folder Include="Entities\" />
+      <Folder Include="Ports\IServices\" />
     </ItemGroup>
 
     <PropertyGroup>
