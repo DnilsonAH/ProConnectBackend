@@ -35,8 +35,4 @@
       <ProjectReference Include="..\ProConnect_Backend.Application\ProConnect_Backend.Application.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Core\" />
-    </ItemGroup>
-
 </Project>
