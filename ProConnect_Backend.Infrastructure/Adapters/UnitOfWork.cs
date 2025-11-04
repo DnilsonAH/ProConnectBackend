@@ -11,18 +11,42 @@ public class UnitOfWork: IUnitOfWork
     
     // Las propiedades ahora son públicas y de solo lectura
     //public IAvailabilityRepository AvailabilityRepository { get; }
+    
+    public IPaymentRepository PaymentRepository { get; }
+    public IReviewRepository ReviewRepository { get; }
+    public IScheduledRepository ScheduledRepository { get; }
+    public ISessionRepository SessionRepository { get; }
+    public ISpecialtyRepository SpecialtyRepository { get; }
+    public IUserRepository UserRepository { get; }
+    public IVerificationDocumentRepository VerificationDocumentRepository { get; }
+    public IVerificationRepository VerificationRepository { get; } 
+    public IWeeklyAvailabilityRepository WeeklyAvailabilityRepository { get; }
 
 
 
     // El constructor ahora recibe todo lo necesario
     public UnitOfWork(
-        ProConnectDbContext dbContext)
-        //IAvailabilityRepository availabilityRepository,
+        ProConnectDbContext dbContext,
+        IPaymentRepository paymentRepository,
+        IReviewRepository reviewRepository,
+        IScheduledRepository scheduledRepository,
+        ISessionRepository sessionRepository,
+        ISpecialtyRepository specialtyRepository,
+        IUserRepository userRepository,
+        IVerificationDocumentRepository verificationDocumentRepository,
+        IVerificationRepository verificationRepository,
+        IWeeklyAvailabilityRepository weeklyAvailabilityRepository)
 
     { _dbContext = dbContext;
-        
-        // Simplemente asigna las instancias recibidas
-        //AvailabilityRepository = availabilityRepository;
+        PaymentRepository = paymentRepository;
+        ReviewRepository = reviewRepository;
+        ScheduledRepository = scheduledRepository;
+        SessionRepository = sessionRepository;
+        SpecialtyRepository = specialtyRepository;
+        UserRepository = userRepository;
+        VerificationDocumentRepository = verificationDocumentRepository;
+        VerificationRepository = verificationRepository;
+        WeeklyAvailabilityRepository = weeklyAvailabilityRepository;
 
     }
     
