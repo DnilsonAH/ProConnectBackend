@@ -11,6 +11,7 @@
 
     <ItemGroup>
       <Folder Include="DTOsResponse\ProfessionalProfileDtos\" />
+      <Folder Include="DTOsResponse\UserDtos\" />
       <Folder Include="UseCases\Users\Command\" />
       <Folder Include="UseCases\Users\Query\" />
     </ItemGroup>

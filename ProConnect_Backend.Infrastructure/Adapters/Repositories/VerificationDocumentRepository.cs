@@ -1,14 +1,13 @@
-using Microsoft.EntityFrameworkCore;
 using ProConnect_Backend.Domain.Entities;
 using ProConnect_Backend.Domain.Ports.IRepositories;
 using ProConnect_Backend.Infrastructure.Data;
 
 namespace ProConnect_Backend.Infrastructure.Adapters.Repositories;
 
-public class UserRepository: GenericRepository<User>, IUserRepository
+public class VerificationDocumentRepository: GenericRepository<VerificationDocument>, IVerificationDocumentRepository
 {
-    public UserRepository(ProConnectDbContext context) : base(context)
+    public VerificationDocumentRepository(ProConnectDbContext context) : base(context)
     {
     }
-    
 }
+

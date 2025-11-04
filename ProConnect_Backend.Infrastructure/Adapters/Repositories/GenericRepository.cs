@@ -1,8 +1,7 @@
-/*using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProConnect_Backend.Domain.Ports.IRepositories;
 using ProConnect_Backend.Infrastructure.Data;
 
-/*
 namespace ProConnect_Backend.Infrastructure.Adapters.Repositories;
 
 public class GenericRepository<TEntity>: IGenericRepository<TEntity> where TEntity : class
@@ -37,4 +36,4 @@ public class GenericRepository<TEntity>: IGenericRepository<TEntity> where TEnti
         _dbContext.Set<TEntity>().Remove(entity);
         _dbContext.SaveChanges();
     }
-}#1#*/
+}

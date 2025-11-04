@@ -1,5 +1,5 @@
 using AutoMapper;
-using ProConnect_Backend.Application.DTOsResponse.UserDtos;
+using ProConnect_Backend.Domain.Entities;
 
 namespace ProConnect_Backend.Application.Mapping;
 

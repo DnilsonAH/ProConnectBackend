@@ -1,14 +1,13 @@
-using Microsoft.EntityFrameworkCore;
 using ProConnect_Backend.Domain.Entities;
 using ProConnect_Backend.Domain.Ports.IRepositories;
 using ProConnect_Backend.Infrastructure.Data;
 
 namespace ProConnect_Backend.Infrastructure.Adapters.Repositories;
 
-public class UserRepository: GenericRepository<User>, IUserRepository
+public class SpecialtyRepository: GenericRepository<Specialty>, ISpecialtyRepository
 {
-    public UserRepository(ProConnectDbContext context) : base(context)
+    public SpecialtyRepository(ProConnectDbContext context) : base(context)
     {
     }
-    
 }
+
