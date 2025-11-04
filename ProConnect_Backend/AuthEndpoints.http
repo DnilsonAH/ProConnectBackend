@@ -1,0 +1,58 @@
+### ProConnect - Authentication Endpoints
+### Variables
+@baseUrl = http://localhost:5000
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+### 1. Registrar nuevo usuario (rol User por defecto)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Juan Pérez",
+  "email": "juan@example.com",
+  "password": "Password123",
+  "phoneNumber": "+51987654321"
+}
+
+###
+
+### 2. Login de usuario
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "juan@example.com",
+  "password": "Password123"
+}
+
+###
+
+### 3. Cambiar rol a Professional (requiere token)
+PUT {{baseUrl}}/api/auth/change-role
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": 1,
+  "roleName": "Professional"
+}
+
+###
+
+### 4. Cambiar rol a Admin (requiere token)
+PUT {{baseUrl}}/api/auth/change-role
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "userId": 1,
+  "roleName": "Admin"
+}
+
+###
+
+### 5. Ejemplo - Endpoint protegido (reemplaza con tu endpoint)
+GET {{baseUrl}}/api/users/me
+Authorization: Bearer {{token}}
+
+###

@@ -1,85 +1,72 @@
-using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using ProConnect_Backend.Application.Mapping;
-using ProConnect_Backend.Domain.Entities;
-using ProConnect_Backend.Domain.Ports;
-using ProConnect_Backend.Domain.Ports.IRepositories;
-using ProConnect_Backend.Infrastructure.Adapters;
-using ProConnect_Backend.Infrastructure.Adapters.Repositories;
-using ProConnect_Backend.Infrastructure.Data;
-
+using ProConnect_Backend.Configuration;
 var builder = WebApplication.CreateBuilder(args);
 
-// Obtener la cadena de conexión desde appsettings.json
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-/* +---------------------------------------------------------------------------------------------------------+
-   |                                        Registro de servicios                                            |
-   +---------------------------------------------------------------------------------------------------------+*/
-builder.Services.AddControllers(); // Agregar servicios de controladores
-builder.Services.AddEndpointsApiExplorer(); // Agregar servicios para explorar endpoints
-builder.Services.AddSwaggerGen(); // Agregar servicios para generar Swagger
+// Registro de servicios generales
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(AutoMapping).Assembly);
 
-builder.Services.AddAutoMapper(typeof(AutoMapping).Assembly); //Registrar AutoMapper y escanear el ensamblado donde se encuentra AutoMapping
+// Registro centralizado de servicios del controlador de usuario
+builder.Services.AddUserControllerServices(builder.Configuration);
 
-builder.Services.AddDbContext<ProConnectDbContext>(options =>
+// Políticas de autorización
+builder.Services.AddAuthorization(options =>
 {
-    options.UseMySql(
-        connectionString,
-        ServerVersion.AutoDetect(connectionString),
-        mySqlOptions => mySqlOptions.EnableRetryOnFailure()
-    );
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("ProfessionalOnly", policy => policy.RequireRole("Professional"));
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+    options.AddPolicy("AdminOrProfessional", policy => policy.RequireRole("Admin", "Professional"));
 });
-
-
-
-
-/* +---------------------------------------------------------------------------------------------------------+
-   |                          Registro de UnitOfWork, Repositorios y Servicios                               |
-   +---------------------------------------------------------------------------------------------------------+*/
-// Agregar registro de UnitOfWork
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // Registrar UnitOfWork para inyección de dependencias
-
-// Agregar registros de repositorios | Emjemplo: builder.Services.AddScoped<IUserRepository, UserRepository>();
-/*builder.Services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
-builder.Services.AddScoped<IConsultationRepository, ConsultationRepository>();
-builder.Services.AddScoped<IDistributionRepository, DistributionRepository>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
-builder.Services.AddScoped<IProfessionalPaymentInfoRepository, ProfessionalPaymentInfoRepository>();
-builder.Services.AddScoped<IProfessionalProfileRepository, ProfessionalProfileRepository>();
-builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
-builder.Services.AddScoped<IVerificationDocumentRepository, VerificationDocumentRepository>();
-builder.Services.AddScoped<IVerificationRepository, VerificationRepository>();
-builder.Services.AddScoped<IVideoCallRepository, VideoCallRepository>();*/
-
-// Agregar registros de servicios | Ejemplo: builder.Services.AddScoped<IUserService, UserService>();
-/*
- *builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
- *builder.Services.AddScoped<IConsultationService, ConsultationService>();
- *builder.Services.AddScoped<IDistributionService, DistributionService>();
- *builder.Services.AddScoped<INotificationService, NotificationService>();
- *builder.Services.AddScoped<IPaymentService, PaymentService>();
- *builder.Services.AddScoped<IProfessionalPaymentInfoService, ProfessionalPaymentInfoService>();
- *builder.Services.AddScoped<IProfessionalProfileService, ProfessionalProfileService>();
- *builder.Services.AddScoped<IReviewService, ReviewService>();
- *builder.Services.AddScoped<IRoleService, RoleService>();
- *builder.Services.AddScoped<ISpecialtyService, SpecialtyService>();
- *builder.Services.AddScoped<IUserService, UserService>();
- *builder.Services.AddScoped<IUserRoleService, UserRoleService>();
- *builder.Services.AddScoped<IVerificationDocumentService, VerificationDocumentService>();
- *builder.Services.AddScoped<IVerificationService, VerificationService>();
- *builder.Services.AddScoped<IVideoCallService, VideoCallService>();
-*/
-
 
 
 /* +---------------------------------------------------------------------------------------------------------+
    |                                        Construcción de la aplicación                                    |
    +---------------------------------------------------------------------------------------------------------+*/
+// Necesario para acceder al HttpContext en los servicios
+
+// Necesario para acceder al HttpContext en los servicios
+builder.Services.AddHttpContextAccessor();
+// 3. Configurar Swagger/OpenAPI para que soporte JWT
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "ArchitectureLAB10 API",
+        Version = "v1"
+    });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Autorización JWT: Bearer)"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+
+
 var app = builder.Build(); // Construir la aplicación
 
 if (app.Environment.IsDevelopment())
@@ -87,6 +74,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseAuthentication(); // Middleware de autenticación
+app.UseAuthorization(); // Middleware de autorización
+
 app.MapControllers();
 
 app.Run();

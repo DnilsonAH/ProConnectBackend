@@ -5,9 +5,10 @@ using ProConnect_Backend.Infrastructure.Adapters.Repositories;
 
 namespace ProConnect_Backend.Infrastructure.Adapters;
 
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWork: IUnitOfWork
 {
     private readonly ProConnectDbContext _dbContext;
+    
     // Las propiedades ahora son públicas y de solo lectura
     public IAvailabilityRepository AvailabilityRepository { get; }
     public IConsultationRepository ConsultationRepository { get; }
@@ -25,7 +26,8 @@ public class UnitOfWork : IUnitOfWork
     public IVerificationRepository VerificationRepository { get; }
     public IVideoCallRepository VideoCallRepository { get; }
 
-    // El constructor ahora recibe TODO inyectado por DI
+
+    // El constructor ahora recibe todo lo necesario
     public UnitOfWork(
         ProConnectDbContext dbContext,
         IAvailabilityRepository availabilityRepository,
@@ -43,8 +45,7 @@ public class UnitOfWork : IUnitOfWork
         IVerificationDocumentRepository verificationDocumentRepository,
         IVerificationRepository verificationRepository,
         IVideoCallRepository videoCallRepository)
-    {
-        _dbContext = dbContext;
+    { _dbContext = dbContext;
         
         // Simplemente asigna las instancias recibidas
         AvailabilityRepository = availabilityRepository;
@@ -63,14 +64,14 @@ public class UnitOfWork : IUnitOfWork
         VerificationRepository = verificationRepository;
         VideoCallRepository = videoCallRepository;
     }
-
+    
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return await _dbContext.SaveChangesAsync(cancellationToken);
     }
-
     public void Dispose()
     {
         _dbContext.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

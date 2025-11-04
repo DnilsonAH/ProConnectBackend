@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using ProConnect_Backend.Domain.Entities;
 using ProConnect_Backend.Domain.Ports.IRepositories;
 using ProConnect_Backend.Infrastructure.Data;
@@ -9,5 +10,10 @@ public class RoleRepository : GenericRepository<Role>, IRoleRepository
     public RoleRepository(ProConnectDbContext context) : base(context)
     {
     }
-    //Agregar los metodos específicos
+    
+    public async Task<Role?> GetByNameAsync(string roleName)
+    {
+        return await _dbContext.Set<Role>()
+            .FirstOrDefaultAsync(r => r.RoleName == roleName);
+    }
 }
