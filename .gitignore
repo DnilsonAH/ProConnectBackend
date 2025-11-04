@@ -51,10 +51,11 @@ packages/
 TestResult.xml
 
 ## Archivos sensibles y de entorno
-appsettings.json
-appsettings.Development.json
-secrets.json
-.env
+/ProConnect_Backend/appsettings.json
+/ProConnect_Backend/appsettings.Development.json
+/ProConnect_Backend/secrets.json
+/ProConnect_Backend/.env
+
 
 ## Archivos de publicación
 publish/
