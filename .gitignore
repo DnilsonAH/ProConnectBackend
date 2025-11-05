@@ -55,6 +55,7 @@ TestResult.xml
 /ProConnect_Backend/appsettings.Development.json
 /ProConnect_Backend/secrets.json
 /ProConnect_Backend/.env
+.env
 
 
 ## Archivos de publicación
