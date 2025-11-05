@@ -8,8 +8,8 @@ namespace ProConnect_Backend.Application.UseCases.Specialty.Command;
 
 public class UpdateSpecialtyCommand : IRequest
 {
-    public Guid SpecialtyId { get; set; }
-    public SpecialtyUpdateDto SpecialtyUpdateDto { get; set; } = null!;
+    public uint SpecialtyId { get; set; }
+    public SpecialtyDto SpecialtyDto { get; set; } = null!;
 }
 
 public class UpdateSpecialtyCommandHandler : IRequestHandler<UpdateSpecialtyCommand>
@@ -29,7 +29,7 @@ public class UpdateSpecialtyCommandHandler : IRequestHandler<UpdateSpecialtyComm
         {
             throw new Exception($"LA ESPECIALIDAD CON EL ID {request.SpecialtyId} NO FUE ENCONTRADA.");
         }
-        _mapper.Map(request.SpecialtyUpdateDto, specialty);
+        _mapper.Map(request.SpecialtyDto, specialty);
         _unitOfWork.SpecialtyRepository.Update(specialty);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
     }

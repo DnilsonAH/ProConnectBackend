@@ -1,8 +1,8 @@
 namespace ProConnect_Backend.Application.DTOsResponse.SpecialityDtos;
 
-public class SpecialtyUpdateDto
+public class SpecialtyGetDto
 {
-    public Guid Id { get; set; }
+    public uint SpecialtyId { get; set; }
     public string Name { get; set; } = null!;
-    public string? Description { get; set; }
+    public string? Description { get; set; } 
 }

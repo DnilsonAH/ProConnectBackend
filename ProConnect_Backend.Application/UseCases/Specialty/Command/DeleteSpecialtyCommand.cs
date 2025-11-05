@@ -5,7 +5,7 @@ namespace ProConnect_Backend.Application.UseCases.Specialty.Command;
 
 public class DeleteSpecialtyCommand : IRequest
 {
-    public Guid SpecialtyId { get; set; }
+    public uint SpecialtyId { get; set; }
 }
 
 public class DeleteSpecialtyCommandHandler : IRequestHandler<DeleteSpecialtyCommand>
