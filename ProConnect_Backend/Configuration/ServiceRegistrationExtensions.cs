@@ -1,4 +1,5 @@
 using System.Text;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -21,14 +22,65 @@ public static class ServiceRegistrationExtensions
     public static IServiceCollection AddUserControllerServices(this IServiceCollection services,
         IConfiguration configuration)
     {
-        // 1. Configuración del DbContext (MySQL)
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
+        // 1. Configuración del DbContext (MySQL con SSL para Google Cloud SQL)
+        var connectionString = configuration.GetConnectionString("DefaultConnection") 
+            ?? throw new InvalidOperationException("ConnectionString 'DefaultConnection' no está configurada");
+        
+        // Obtener certificados SSL desde la configuración
+        var clientCert = configuration["SslCertificates:ClientCert"];
+        var clientKey = configuration["SslCertificates:ClientKey"];
+        var serverCa = configuration["SslCertificates:ServerCa"];
+        
+        // Crear directorio temporal para los certificados si no existe
+        var certPath = Path.Combine(Path.GetTempPath(), "mysql_certs");
+        Directory.CreateDirectory(certPath);
+        
+        // Escribir certificados a archivos temporales
+        var clientCertPath = Path.Combine(certPath, "client-cert.pem");
+        var clientKeyPath = Path.Combine(certPath, "client-key.pem");
+        var serverCaPath = Path.Combine(certPath, "server-ca.pem");
+        
+        if (!string.IsNullOrEmpty(clientCert) && !string.IsNullOrEmpty(clientKey) && !string.IsNullOrEmpty(serverCa))
+        {
+            try
+            {
+                File.WriteAllText(clientCertPath, clientCert);
+                File.WriteAllText(clientKeyPath, clientKey);
+                File.WriteAllText(serverCaPath, serverCa);
+                
+                Console.WriteLine("🔐 Certificados SSL escritos en archivos temporales");
+                Console.WriteLine($"   - Ruta certificados: {certPath}");
+                
+                // Asegurar que la cadena de conexión base termine con punto y coma
+                if (!connectionString.EndsWith(";"))
+                {
+                    connectionString += ";";
+                }
+                
+                // Construir connection string con SSL
+                connectionString += $"SslMode=Required;SslCa={serverCaPath};SslCert={clientCertPath};SslKey={clientKeyPath};";
+                Console.WriteLine("✅ Conexión SSL configurada correctamente");
+                Console.WriteLine($"🔍 Longitud cadena de conexión: {connectionString.Length} caracteres");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error al escribir certificados SSL: {ex.Message}");
+                throw;
+            }
+        }
+        else
+        {
+            Console.WriteLine("⚠️ Certificados SSL no configurados - Conexión sin SSL");
+        }
+        
         services.AddDbContext<ProConnectDbContext>(options =>
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
-                mySqlOptions => mySqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(10),
-                    errorNumbersToAdd: null))
+                mySqlOptions => {
+                    mySqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
+                        errorNumbersToAdd: null);
+                })
         );
         // Registro de UnitOfWrok
         services.AddScoped<IUnitOfWork, UnitOfWork>();
