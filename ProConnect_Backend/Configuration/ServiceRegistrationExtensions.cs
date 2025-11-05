@@ -73,7 +73,15 @@ public static class ServiceRegistrationExtensions
                     ClockSkew = TimeSpan.Zero
                 };
             });
-      
+        // Políticas de autorización
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+            options.AddPolicy("ProfessionalOnly", policy => policy.RequireRole("Professional"));
+            options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+            options.AddPolicy("AdminOrProfessional", policy => policy.RequireRole("Admin", "Professional"));
+        });
+       // services[]
         
         return services;
     }

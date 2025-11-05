@@ -1,4 +1,4 @@
-namespace ProConnect_Backend.Api.Controllers;
+namespace ProConnect_Backend.Controllers;
 
 public class UserController
 {

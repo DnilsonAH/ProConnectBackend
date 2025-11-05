@@ -1,4 +1,5 @@
 using Microsoft.OpenApi.Models;
+using ProConnect_Backend.Application.Configuration;
 using ProConnect_Backend.Application.Mapping;
 using ProConnect_Backend.Configuration;
 var builder = WebApplication.CreateBuilder(args);
@@ -8,19 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAutoMapper(typeof(AutoMapping).Assembly);
 
-// Registro centralizado de servicios del controlador de usuario
 builder.Services.AddUserControllerServices(builder.Configuration);
+builder.Services.AddApplicationServices();
 
-// Políticas de autorización
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("ProfessionalOnly", policy => policy.RequireRole("Professional"));
-    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
-    options.AddPolicy("AdminOrProfessional", policy => policy.RequireRole("Admin", "Professional"));
-});
 
 
 /* +---------------------------------------------------------------------------------------------------------+
