@@ -64,9 +64,9 @@ Actualmente, los usuarios enfrentan dificultades para encontrar asesoría profes
 |--------------------|--------------------|--------------------------------------------------|
 | Frontend (App)     | Flutter            | Aplicación móvil para clientes y consultores     |
 | Backend (API)      | C# (.NET Core)     | Lógica de negocio, autenticación, pagos, citas   |
-| Base de Datos      | PostgreSQL / SQL Server | Datos críticos del sistema                  |
-| Videoconferencia   | Google Meet API / Jitsi | Consultas virtuales integradas             |
-| Almacenamiento     | Amazon S3 / Azure Blob | Documentos y activos estáticos              |
+| Base de Datos      | MySQL | Datos críticos del sistema                  |
+| Videoconferencia   | Google Meet API | Consultas virtuales integradas             |
+| Almacenamiento     | Google Cloud SQL | Documentos y activos estáticos              |
 
 ---
 

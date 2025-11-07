@@ -14,8 +14,9 @@ Responsabilidades principales
 Archivos y carpetas clave
 
 - `Adapters/UnitOfWork.cs` — implementación del Unit of Work.
-- `Adapters/Repositories/` — implementaciones concretas de repositorios.
-- `Data/ProConnectDbContext.cs` — contexto de EF Core y configuración de entidades.
+- `Adapters/Repositories/` — implementaciones concretas de repositorios para cada entidad.
+- `Data/ProConnectDbContext.cs` — contexto de EF Core y configuración de entidades MySQL.
+- `Services/` — servicios de infraestructura (ej: `PasswordHasher`).
 - `ProConnect_Backend.Infrastructure.csproj` — proyecto de infraestructura.
 
 Cómo compilar

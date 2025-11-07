@@ -12,9 +12,11 @@ Responsabilidades principales
 
 Archivos y carpetas clave
 
-- `Entities/` — definiciones de entidad (ej.: `User.cs`, `ProfessionalProfile.cs`, `Consultation.cs`, `Payment.cs`, `Verification.cs`, `Availability.cs`, `Review.cs`, `VideoCall.cs`).
+- `Entities/` — definiciones de entidad (`User.cs`, `ProfessionalProfile.cs`, `Payment.cs`, `Review.cs`, `Scheduled.cs`, `Session.cs`, `Specialty.cs`, `Verification.cs`, `VerificationDocument.cs`, `WeeklyAvailability.cs`).
+- `DTOsRequest/` — DTOs para requests organizados por módulo (ej: `AuthDtos/`).
 - `Ports/IUnitOfWork.cs` — contrato del Unit of Work.
-- `Ports/IRepositories/` — interfaces de repositorios.
+- `Ports/IRepositories/` — interfaces de repositorios para cada entidad.
+- `Ports/IServices/` — interfaces de servicios del dominio.
 - `ProConnect_Backend.Domain.csproj` — proyecto del dominio.
 
 Cómo compilar

@@ -13,8 +13,10 @@ Responsabilidades principales
 
 Archivos y carpetas clave
 
-- `DTOs/` — clases de transferencia de datos (por ejemplo `UserDtos`).
-- `Mapping/AutoMapping.cs` — configuración de AutoMapper o mapeos.
+- `DTOsResponse/` — clases de transferencia de datos para respuestas (ej: `SpecialityDtos/`).
+- `UseCases/` — casos de uso organizados por módulo (ej: `Specialty/`).
+- `Mapping/AutoMapping.cs` — configuración de AutoMapper para mapeos entre entidades y DTOs.
+- `Configuration/ApplicationServicesExtensions.cs` — registro de servicios de aplicación (AutoMapper, MediatR).
 - `ProConnect_Backend.Application.csproj` — proyecto de la capa.
 
 Cómo probar y ejecutar

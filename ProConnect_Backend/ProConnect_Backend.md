@@ -14,23 +14,39 @@ Responsabilidades principales
 
 Archivos y carpetas clave
 
-- `Program.cs` — punto de arranque; registra servicios y middleware.
-- `appsettings.json`, `appsettings.Development.json` — configuración de entornos.
-- `Api/Controllers/` — controladores, por ejemplo `UserController.cs`.
+- `Program.cs` — punto de arranque; registra servicios, middleware y configuración de base de datos MySQL con SSL.
+- `appsettings.json`, `appsettings.Development.json` — configuración de entornos (usa variables de entorno).
+- `Controllers/` — controladores REST (actualmente: `UserController.cs`, `SpecialtyController.cs`, `ExampleProtectedController.cs`).
+- `Configuration/ServiceRegistrationExtensions.cs` — registro de servicios de DI, autenticación JWT y configuración de DbContext.
 - `ProConnect_Backend.csproj` — definición del proyecto.
 
 Cómo ejecutar (local)
 
-1. Desde la raíz del repo o la carpeta de la solución, restaurar dependencias y construir:
+1. **Configurar variables de entorno**: Crear archivo `.env` en la raíz con:
+   ```
+   DB_SERVER=tu_servidor
+   DB_PORT=3306
+   DB_DATABASE=proconnect_db
+   DB_USER=tu_usuario
+   DB_PASSWORD=tu_password
+   JWT_SECRET_KEY=tu_clave_secreta
+   JWT_ISSUER=ProConnect
+   JWT_AUDIENCE=ProConnect
+   JWT_EXPIRATION_HOURS=24
+   ```
 
+2. Restaurar dependencias y construir:
+   ```
    dotnet restore
    dotnet build
+   ```
 
-2. Ejecutar la API (desde `ProConnect_Backend`):
-
+3. Ejecutar la API:
+   ```
    dotnet run --project .\ProConnect_Backend.csproj
+   ```
 
-(Opción: abrir `ProConnect_Backend.http` si está presente para llamadas de ejemplo.)
+4. Acceder a Swagger UI en: `https://localhost:7000/swagger` (puerto puede variar)
 
 Puntos de integración
 
