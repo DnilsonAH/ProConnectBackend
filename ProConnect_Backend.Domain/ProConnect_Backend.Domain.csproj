@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-      <Folder Include="DTOsRequest\" />
       <Folder Include="Entities\" />
     </ItemGroup>
 
