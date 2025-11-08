@@ -1,3 +1,4 @@
+using ProConnect_Backend.Domain.Interfaces;
 using ProConnect_Backend.Domain.Ports.IRepositories;
 
 namespace ProConnect_Backend.Domain.Ports;
