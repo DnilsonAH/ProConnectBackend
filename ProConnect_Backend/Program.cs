@@ -6,7 +6,11 @@ using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 
 // Cargar variables de entorno desde el archivo .env en la carpeta raíz del proyecto
-var envPath = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.FullName, ".env");
+var envPath = Path.Combine(
+    Directory.GetParent(Directory.GetCurrentDirectory())!.FullName,
+    "ProConnect_Backend.Infrastructure",
+    ".env"
+);
 
 if (File.Exists(envPath))
 {
