@@ -21,17 +21,51 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("❌ Datos inválidos enviados a login");
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "⚠️ Los datos enviados no son válidos. Revisa el formato del correo y la contraseña.",
+                    errors = ModelState
+                });
+            }
 
-        var command = new LoginCommand(dto);
-        var result = await _loginHandler.Handle(command);
+            var command = new LoginCommand(dto);
+            var result = await _loginHandler.Handle(command);
 
-        if (result == null)
-            return Unauthorized(new { message = "Correo o contraseña incorrectos." });
+            if (result == null)
+            {
+                _logger.LogWarning("🚫 Intento de login fallido para el correo: {Email}", dto.Email);
+                return Unauthorized(new
+                {
+                    success = false,
+                    message = "🚫 Correo o contraseña incorrectos. Inténtalo nuevamente."
+                });
+            }
 
-        _logger.LogInformation("Usuario autenticado: {Email}", result.Email);
+            _logger.LogInformation("✅ Usuario autenticado correctamente: {Email}", result.Email);
 
-        return Ok(result);
+            return Ok(new
+            {
+                success = true,
+                message = "🎉 Inicio de sesión exitoso. ¡Bienvenido/a de nuevo!",
+                data = result
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "💥 Error inesperado durante el proceso de login");
+
+            return StatusCode(500, new
+            {
+                success = false,
+                message = "💥 Ocurrió un error interno al procesar tu solicitud. Intenta nuevamente más tarde.",
+                details = ex.Message
+            });
+        }
     }
 }
