@@ -10,11 +10,13 @@ namespace ProConnect_Backend.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly LoginCommandHandler _loginHandler;
+    private readonly ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler _registerHandler;
     private readonly ILogger<AuthController> _logger;
 
-    public AuthController(LoginCommandHandler loginHandler, ILogger<AuthController> logger)
+    public AuthController(LoginCommandHandler loginHandler, ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler registerHandler, ILogger<AuthController> logger)
     {
         _loginHandler = loginHandler;
+        _registerHandler = registerHandler;
         _logger = logger;
     }
 
@@ -64,6 +66,41 @@ public class AuthController : ControllerBase
             {
                 success = false,
                 message = "💥 Ocurrió un error interno al procesar tu solicitud. Intenta nuevamente más tarde.",
+                details = ex.Message
+            });
+        }
+    }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] ProConnect_Backend.Domain.DTOsRequest.AuthDtos.RegisterRequestDto dto)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("❌ Datos inválidos enviados a register");
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "⚠️ Los datos enviados no son válidos.",
+                    errors = ModelState
+                });
+            }
+
+            var command = new ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommand(dto);
+            var result = await _registerHandler.Handle(command);
+
+            _logger.LogInformation("✅ Usuario registrado correctamente: {Email}", result.Email);
+
+            return CreatedAtAction("GetById", "User", new { id = result.Id }, new { success = true, data = result });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "💥 Error inesperado durante el proceso de register");
+            return StatusCode(500, new
+            {
+                success = false,
+                message = "💥 Ocurrió un error interno al procesar tu solicitud.",
                 details = ex.Message
             });
         }

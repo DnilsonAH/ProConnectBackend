@@ -1,21 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using ProConnect_Backend.Domain.Entities;
-using ProConnect_Backend.Domain.Interfaces;
+using ProConnect_Backend.Domain.Ports.IRepositories;
 using ProConnect_Backend.Infrastructure.Data;
 
-namespace ProConnect_Backend.Infrastructure.Repositories;
+namespace ProConnect_Backend.Infrastructure.Adapters.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository: GenericRepository<User>, IUserRepository
 {
-    private readonly ProConnectDbContext _context;
-
-    public UserRepository(ProConnectDbContext context)
+    public UserRepository(ProConnectDbContext context) : base(context)
     {
-        _context = context;
     }
-
     public async Task<User?> GetByEmailAsync(string email)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        return await _dbContext.Set<User>().SingleOrDefaultAsync(u => u.Email == email);
     }
+    
 }

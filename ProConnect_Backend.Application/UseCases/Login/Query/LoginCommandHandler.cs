@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using ProConnect_Backend.Application.DTOsResponse.LoginDTOs;
 using ProConnect_Backend.Application.UseCases.Login.Command;
 using ProConnect_Backend.Domain.Entities;
-using ProConnect_Backend.Domain.Interfaces;
+using ProConnect_Backend.Domain.Ports.IRepositories;
 
 namespace ProConnect_Backend.Application.UseCases.Login.Query;
 

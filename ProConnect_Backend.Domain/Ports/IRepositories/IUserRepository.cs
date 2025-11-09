@@ -1,8 +1,9 @@
+
 using ProConnect_Backend.Domain.Entities;
 
-namespace ProConnect_Backend.Domain.Interfaces;
+namespace ProConnect_Backend.Domain.Ports.IRepositories;
 
-public interface IUserRepository
+public interface IUserRepository: IGenericRepository<User>
 {
-    Task<User?> GetByEmailAsync(string email);
+	Task<User?> GetByEmailAsync(string email);
 }

@@ -4,15 +4,20 @@ using ProConnect_Backend.Application.Mapping;
 using ProConnect_Backend.Configuration;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using Microsoft.Extensions.Logging;
 
-// Cargar variables de entorno desde el archivo .env en la carpeta raíz del proyecto
-var envPath = Path.Combine(
-    Directory.GetParent(Directory.GetCurrentDirectory())!.FullName,
-    "ProConnect_Backend.Infrastructure",
-    ".env"
-);
+// Buscar .env en varios lugares (project root, parent, Infrastructure)
+var candidatePaths = new[]
+{
+    Path.Combine(Directory.GetCurrentDirectory(), ".env"),
+    Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.FullName, ".env"),
+    Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.FullName, "ProConnect_Backend.Infrastructure", ".env")
+};
 
-if (File.Exists(envPath))
+var envPath = candidatePaths.FirstOrDefault(File.Exists);
+
+if (!string.IsNullOrEmpty(envPath))
 {
     Console.WriteLine($"📂 Cargando archivo .env desde: {envPath}");
     Env.Load(envPath);
@@ -20,7 +25,8 @@ if (File.Exists(envPath))
 }
 else
 {
-    Console.WriteLine($"⚠️ Advertencia: No se encontró el archivo .env en: {envPath}");
+    Console.WriteLine($"⚠️ Advertencia: No se encontró el archivo .env en rutas buscadas:");
+    foreach (var p in candidatePaths) Console.WriteLine($"   - {p}");
     Console.WriteLine("💡 La aplicación usará las variables de entorno del sistema");
 }
 

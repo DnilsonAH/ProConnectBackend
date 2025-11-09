@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ProConnect_Backend.Application.UseCases.Login.Query;
-using ProConnect_Backend.Domain.Interfaces;
+// using ProConnect_Backend.Domain.Interfaces; (not used)
 using ProConnect_Backend.Domain.Ports;
 using ProConnect_Backend.Domain.Ports.IRepositories;
 using ProConnect_Backend.Infrastructure.Adapters;
 using ProConnect_Backend.Infrastructure.Adapters.Repositories;
 using ProConnect_Backend.Infrastructure.Data;
-using ProConnect_Backend.Infrastructure.Repositories;
+// using ProConnect_Backend.Infrastructure.Repositories; (not present)
 /*using ProConnect_Backend.Domain.Ports.IServices;
 using ProConnect_Backend.Infrastructure.Adapters;
 using ProConnect_Backend.Infrastructure.Adapters.Repositories;
@@ -99,8 +99,9 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<IVerificationRepository, VerificationRepository>();
         services.AddScoped<IWeeklyAvailabilityRepository, WeeklyAvailabilityRepository>();
         services.AddScoped<LoginCommandHandler>();
-        
-        // 3. Registro de Servicios (Adaptadores) servicios de terceros JWT, Hasheo de contraseñas
+        // Register user command/query handlers
+        services.AddScoped<ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler>();
+        services.AddScoped<ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQueryHandler>();        // 3. Registro de Servicios (Adaptadores) servicios de terceros JWT, Hasheo de contraseñas
 
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         
