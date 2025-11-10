@@ -22,6 +22,7 @@ public class UnitOfWork: IUnitOfWork
     public IVerificationDocumentRepository VerificationDocumentRepository { get; }
     public IVerificationRepository VerificationRepository { get; } 
     public IWeeklyAvailabilityRepository WeeklyAvailabilityRepository { get; }
+    public IRevokedTokenRepository RevokedTokenRepository { get; }
 
 
 
@@ -36,7 +37,8 @@ public class UnitOfWork: IUnitOfWork
         IUserRepository userRepository,
         IVerificationDocumentRepository verificationDocumentRepository,
         IVerificationRepository verificationRepository,
-        IWeeklyAvailabilityRepository weeklyAvailabilityRepository)
+        IWeeklyAvailabilityRepository weeklyAvailabilityRepository,
+        IRevokedTokenRepository revokedTokenRepository)
 
     { _dbContext = dbContext;
         PaymentRepository = paymentRepository;
@@ -48,7 +50,7 @@ public class UnitOfWork: IUnitOfWork
         VerificationDocumentRepository = verificationDocumentRepository;
         VerificationRepository = verificationRepository;
         WeeklyAvailabilityRepository = weeklyAvailabilityRepository;
-
+        RevokedTokenRepository = revokedTokenRepository;
     }
     
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

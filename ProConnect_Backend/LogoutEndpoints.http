@@ -1,0 +1,37 @@
+### Variables
+@baseUrl = http://localhost:5200/api
+@token = your_jwt_token_here
+
+### 1. Register (Crear usuario de prueba)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Usuario Test",
+  "email": "test@test.com",
+  "password": "Test123!",
+  "phoneNumber": "912345678",
+  "role": "User"
+}
+
+### 2. Login (Para obtener un token)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "password": "Test123!"
+}
+
+### 3. Get Current User (Token válido - Obtiene usuario del JWT)
+GET {{baseUrl}}/auth/user
+Authorization: Bearer {{token}}
+
+### 4. Logout (Revocar el token)
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{token}}
+
+### 5. Intentar usar el token revocado (Debe fallar con 401)
+GET {{baseUrl}}/auth/user
+Authorization: Bearer {{token}}
+

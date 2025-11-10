@@ -64,6 +64,7 @@ public class LoginCommandHandler
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // JWT ID único
             new Claim(ClaimTypes.Role, user.Role),
             new Claim("name", user.Name)
         };

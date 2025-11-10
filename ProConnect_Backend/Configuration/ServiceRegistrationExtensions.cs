@@ -98,7 +98,9 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<IVerificationDocumentRepository, VerificationDocumentRepository>();
         services.AddScoped<IVerificationRepository, VerificationRepository>();
         services.AddScoped<IWeeklyAvailabilityRepository, WeeklyAvailabilityRepository>();
+        services.AddScoped<IRevokedTokenRepository, RevokedTokenRepository>();
         services.AddScoped<LoginCommandHandler>();
+        services.AddScoped<ProConnect_Backend.Application.UseCases.Logout.Command.LogoutCommandHandler>();
         // Register user command/query handlers
         services.AddScoped<ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler>();
         services.AddScoped<ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQueryHandler>();        // 3. Registro de Servicios (Adaptadores) servicios de terceros JWT, Hasheo de contraseñas

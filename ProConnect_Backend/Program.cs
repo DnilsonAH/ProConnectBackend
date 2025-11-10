@@ -2,6 +2,7 @@ using Microsoft.OpenApi.Models;
 using ProConnect_Backend.Application.Configuration;
 using ProConnect_Backend.Application.Mapping;
 using ProConnect_Backend.Configuration;
+using ProConnect_Backend.Middleware;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -219,6 +220,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication(); // Middleware de autenticación
+app.UseMiddleware<TokenValidationMiddleware>(); // Middleware de validación de tokens revocados
 app.UseAuthorization(); // Middleware de autorización
 
 app.MapControllers();

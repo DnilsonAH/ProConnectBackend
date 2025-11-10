@@ -36,7 +36,7 @@ public partial class ProConnectDbContext : DbContext
 
     public virtual DbSet<WeeklyAvailability> WeeklyAvailabilities { get; set; }
 
-
+    public virtual DbSet<RevokedToken> RevokedTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -369,6 +369,31 @@ public partial class ProConnectDbContext : DbContext
                 .HasForeignKey(d => d.ProfessionalId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("weekly_availabilities_professional_id_foreign");
+        });
+
+        modelBuilder.Entity<RevokedToken>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("revoked_tokens");
+
+            entity.HasIndex(e => e.TokenJti, "idx_jti").IsUnique();
+
+            entity.HasIndex(e => e.ExpiresAt, "idx_expires_at");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.TokenJti)
+                .HasMaxLength(255)
+                .HasColumnName("token_jti");
+            entity.Property(e => e.UserId)
+                .HasColumnName("user_id");
+            entity.Property(e => e.RevokedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("revoked_at");
+            entity.Property(e => e.ExpiresAt)
+                .HasColumnType("datetime")
+                .HasColumnName("expires_at");
         });
 
         OnModelCreatingPartial(modelBuilder);
