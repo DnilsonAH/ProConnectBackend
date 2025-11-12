@@ -34,7 +34,7 @@ public class TokenValidationMiddleware
                     if (!string.IsNullOrEmpty(jti))
                     {
                         // Verificar si el token está en la blacklist
-                        var isRevoked = await unitOfWork.RevokedTokenRepository.IsTokenRevokedAsync(jti);
+                        var isRevoked = await unitOfWork.JwtBlacklistRepository.IsTokenRevokedAsync(jti);
 
                         if (isRevoked)
                         {

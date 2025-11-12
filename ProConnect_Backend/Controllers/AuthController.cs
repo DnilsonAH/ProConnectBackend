@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ProConnect_Backend.Application.DTOsResponse.LoginDTOs;
 using ProConnect_Backend.Application.UseCases.Login.Command;
-using ProConnect_Backend.Application.UseCases.Login.Query;
 using ProConnect_Backend.Application.UseCases.Users.Query;
 using ProConnect_Backend.Application.UseCases.Logout.Command;
+using ProConnect_Backend.Domain.DTOsRequest.AuthDtos;
 
 namespace ProConnect_Backend.Controllers;
 
@@ -100,7 +100,7 @@ public class AuthController : ControllerBase
             }
 
             var command = new ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommand(dto);
-            var result = await _registerHandler.Handle(command);
+            var result = await _registerHandler.Handle(command, CancellationToken.None);
 
             _logger.LogInformation("✅ Usuario registrado correctamente: {Email}", result.Email);
 
@@ -149,7 +149,7 @@ public class AuthController : ControllerBase
             }
 
             var query = new ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQuery(userId);
-            var result = await _getUserHandler.Handle(query);
+            var result = await _getUserHandler.Handle(query, CancellationToken.None);
 
             if (result == null)
             {
@@ -185,7 +185,7 @@ public class AuthController : ControllerBase
         try
         {
             var query = new ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQuery(id);
-            var result = await _getUserHandler.Handle(query);
+            var result = await _getUserHandler.Handle(query, CancellationToken.None);
 
             if (result == null)
             {

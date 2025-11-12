@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ProConnect_Backend.Domain.Ports;
 using ProConnect_Backend.Domain.Ports.IRepositories;
+using ProConnect_Backend.Domain.Ports.IServices;
 using ProConnect_Backend.Infrastructure.Adapters;
 using ProConnect_Backend.Infrastructure.Adapters.Repositories;
 using ProConnect_Backend.Infrastructure.Data;
@@ -100,6 +101,13 @@ public static class ServiceRegistrationExtensions
         
         // 3. Registro de Servicios de Infraestructura (JWT, Hasheo de contraseñas)
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+        
+        // Registro de Handlers de MediatR (Commands y Queries)
+        services.AddScoped<ProConnect_Backend.Application.UseCases.Login.Command.LoginCommandHandler>();
+        services.AddScoped<ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler>();
+        services.AddScoped<ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQueryHandler>();
+        services.AddScoped<ProConnect_Backend.Application.UseCases.Logout.Command.LogoutCommandHandler>();
         
         // 4. Configuración de Autenticación JWT
         var jwtSettings = configuration.GetSection("JwtSettings");
