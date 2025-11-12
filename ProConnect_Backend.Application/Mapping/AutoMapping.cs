@@ -17,15 +17,10 @@ public class AutoMapping : Profile
         
         // RegisterRequestDto -> User (para crear usuario)
         CreateMap<RegisterRequestDto, User>()
-            .ForMember(dest => dest.FirstSurname, opt => opt.MapFrom(src => src.LastName))
-            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Phone))
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
-            .ForMember(dest => dest.Role, opt => opt.Ignore())
-            .ForMember(dest => dest.UserId, opt => opt.Ignore())
-            .ForMember(dest => dest.RegistrationDate, opt => opt.Ignore())
-            .ForMember(dest => dest.SecondName, opt => opt.Ignore())
-            .ForMember(dest => dest.SecondSurname, opt => opt.Ignore())
-            .ForMember(dest => dest.PhotoUrl, opt => opt.Ignore());
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // Se asigna en el handler
+            .ForMember(dest => dest.Role, opt => opt.Ignore()) // Se asigna "Client" por defecto en handler
+            .ForMember(dest => dest.UserId, opt => opt.Ignore()) // Auto-generado
+            .ForMember(dest => dest.RegistrationDate, opt => opt.Ignore()); // Se asigna en handler
 
         // User -> LoginResponseDto
         CreateMap<User, LoginResponseDto>()

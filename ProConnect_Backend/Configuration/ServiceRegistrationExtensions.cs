@@ -23,51 +23,48 @@ public static class ServiceRegistrationExtensions
         var connectionString = configuration.GetConnectionString("DefaultConnection") 
             ?? throw new InvalidOperationException("ConnectionString 'DefaultConnection' no está configurada");
         
-        // Obtener certificados SSL desde la configuración
-        var clientCert = configuration["SslCertificates:ClientCert"];
-        var clientKey = configuration["SslCertificates:ClientKey"];
-        var serverCa = configuration["SslCertificates:ServerCa"];
+        // Buscar certificados SSL en la carpeta ssl-certs del proyecto
+        var solutionRoot = Directory.GetParent(Directory.GetCurrentDirectory())?.FullName 
+                          ?? Directory.GetCurrentDirectory();
+        var certPath = Path.Combine(solutionRoot, "ssl-certs");
         
-        // Crear directorio temporal para los certificados si no existe
-        var certPath = Path.Combine(Path.GetTempPath(), "mysql_certs");
+        // Asegurar que la carpeta existe
         Directory.CreateDirectory(certPath);
         
-        // Escribir certificados a archivos temporales
         var clientCertPath = Path.Combine(certPath, "client-cert.pem");
         var clientKeyPath = Path.Combine(certPath, "client-key.pem");
         var serverCaPath = Path.Combine(certPath, "server-ca.pem");
         
-        if (!string.IsNullOrEmpty(clientCert) && !string.IsNullOrEmpty(clientKey) && !string.IsNullOrEmpty(serverCa))
+        // Verificar si existen los 3 certificados
+        bool hasCertificates = File.Exists(clientCertPath) && 
+                              File.Exists(clientKeyPath) && 
+                              File.Exists(serverCaPath);
+        
+        // Asegurar que la cadena de conexión base termine con punto y coma
+        if (!connectionString.EndsWith(";"))
         {
-            try
-            {
-                File.WriteAllText(clientCertPath, clientCert);
-                File.WriteAllText(clientKeyPath, clientKey);
-                File.WriteAllText(serverCaPath, serverCa);
-                
-                Console.WriteLine("🔐 Certificados SSL escritos en archivos temporales");
-                Console.WriteLine($"   - Ruta certificados: {certPath}");
-                
-                // Asegurar que la cadena de conexión base termine con punto y coma
-                if (!connectionString.EndsWith(";"))
-                {
-                    connectionString += ";";
-                }
-                
-                // Construir connection string con SSL
-                connectionString += $"SslMode=Required;SslCa={serverCaPath};SslCert={clientCertPath};SslKey={clientKeyPath};";
-                Console.WriteLine("✅ Conexión SSL configurada correctamente");
-                Console.WriteLine($"🔍 Longitud cadena de conexión: {connectionString.Length} caracteres");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Error al escribir certificados SSL: {ex.Message}");
-                throw;
-            }
+            connectionString += ";";
+        }
+        
+        if (hasCertificates)
+        {
+            // Conexión SSL con certificados de cliente (autenticación mutua TLS)
+            connectionString += $"SslMode=Required;SslCa={serverCaPath};SslCert={clientCertPath};SslKey={clientKeyPath};";
+            Console.WriteLine("🔐 Certificados SSL encontrados - Usando autenticación con certificados de cliente");
+            Console.WriteLine($"   📁 Ruta: {certPath}");
+            Console.WriteLine($"   ✅ client-cert.pem");
+            Console.WriteLine($"   ✅ client-key.pem");
+            Console.WriteLine($"   ✅ server-ca.pem");
+            Console.WriteLine($"   🛠️ Entorno: DESARROLLO (Development)");
         }
         else
         {
-            Console.WriteLine("⚠️ Certificados SSL no configurados - Conexión sin SSL");
+            // Conexión SSL sin certificados de cliente (solo cifrado)
+            connectionString += "SslMode=Required;";
+            Console.WriteLine("⚠️ Certificados SSL no encontrados - Usando SSL sin certificados de cliente");
+            Console.WriteLine($"   📁 Buscado en: {certPath}");
+            Console.WriteLine($"   💡 Coloca los certificados ahí si deseas autenticación con certificados");
+            Console.WriteLine($"   🚀 Entorno: PRODUCCIÓN (Production)");
         }
         
         // 2. Configuración del DbContext con MySQL y SSL

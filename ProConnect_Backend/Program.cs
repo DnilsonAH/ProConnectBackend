@@ -67,10 +67,15 @@ Console.WriteLine("🔗 Cadena de conexión generada:");
 Console.WriteLine($"   {fullConnectionString.Replace(dbPassword, "***PASSWORD***")}");
 Console.WriteLine();
 
-// Configurar certificados SSL para Google Cloud SQL
-builder.Configuration["SslCertificates:ClientCert"] = Environment.GetEnvironmentVariable("DB_CLIENT_CERT");
-builder.Configuration["SslCertificates:ClientKey"] = Environment.GetEnvironmentVariable("DB_CLIENT_KEY");
-builder.Configuration["SslCertificates:ServerCa"] = Environment.GetEnvironmentVariable("DB_SERVER_CA");
+// Configurar certificados SSL para Google Cloud SQL desde variables de entorno
+var clientCert = Environment.GetEnvironmentVariable("DB_CLIENT_CERT");
+var clientKey = Environment.GetEnvironmentVariable("DB_CLIENT_KEY");
+var serverCa = Environment.GetEnvironmentVariable("DB_SERVER_CA");
+
+// Almacenar en configuración para uso posterior si es necesario
+builder.Configuration["SslCertificates:ClientCert"] = clientCert;
+builder.Configuration["SslCertificates:ClientKey"] = clientKey;
+builder.Configuration["SslCertificates:ServerCa"] = serverCa;
 
 builder.Configuration["JwtSettings:SecretKey"] = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 builder.Configuration["JwtSettings:Issuer"] = Environment.GetEnvironmentVariable("JWT_ISSUER");
@@ -171,6 +176,10 @@ using (var scope = app.Services.CreateScope())
         {
             logger.LogInformation("✅ Conexión a la base de datos establecida exitosamente");
             logger.LogInformation("🔒 Conexión SSL: Habilitada (Google Cloud SQL)");
+            
+            // Limpiar certificados SSL temporales después de conexión exitosa
+            var cleanupAction = services.GetService<Action>();
+            cleanupAction?.Invoke();
         }
         else
         {

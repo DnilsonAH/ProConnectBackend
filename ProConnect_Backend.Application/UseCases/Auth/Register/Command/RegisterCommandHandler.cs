@@ -37,11 +37,14 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
         var user = new User
         {
             FirstName = dto.FirstName,
-            FirstSurname = dto.LastName,
+            SecondName = dto.SecondName,
+            FirstSurname = dto.FirstSurname,
+            SecondSurname = dto.SecondSurname,
             Email = dto.Email,
             PasswordHash = _passwordHasher.HashPassword(dto.Password),
-            Role = "User", // Rol por defecto
-            PhoneNumber = dto.Phone,
+            Role = "Client", // Rol por defecto: Client
+            PhoneNumber = dto.PhoneNumber,
+            PhotoUrl = dto.PhotoUrl,
             RegistrationDate = DateTime.UtcNow
         };
 
@@ -56,7 +59,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterR
         {
             UserId = user.UserId,
             FirstName = user.FirstName,
-            LastName = user.FirstSurname,
+            LastName = $"{user.FirstSurname} {user.SecondSurname}".Trim(),
             Email = user.Email,
             Role = user.Role,
             RegistrationDate = user.RegistrationDate,

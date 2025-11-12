@@ -57,6 +57,15 @@ TestResult.xml
 /ProConnect_Backend/.env
 .env
 
+## Certificados SSL temporales
+.ssl_temp/
+**/.ssl_temp/
+
+## Certificados SSL de cliente (nunca subir al repositorio)
+ssl-certs/client-cert.pem
+ssl-certs/client-key.pem
+ssl-certs/server-ca.pem
+
 
 ## Archivos de publicación
 publish/
