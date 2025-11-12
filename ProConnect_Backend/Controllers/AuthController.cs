@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ProConnect_Backend.Application.DTOsResponse.LoginDTOs;
 using ProConnect_Backend.Application.UseCases.Login.Command;
-using ProConnect_Backend.Application.UseCases.Users.Query;
 using ProConnect_Backend.Application.UseCases.Logout.Command;
 using ProConnect_Backend.Domain.DTOsRequest.AuthDtos;
 
@@ -14,20 +13,17 @@ public class AuthController : ControllerBase
 {
     private readonly LoginCommandHandler _loginHandler;
     private readonly ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler _registerHandler;
-    private readonly ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQueryHandler _getUserHandler;
     private readonly LogoutCommandHandler _logoutHandler;
     private readonly ILogger<AuthController> _logger;
 
     public AuthController(
         LoginCommandHandler loginHandler,
         ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler registerHandler,
-        ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQueryHandler getUserHandler,
         LogoutCommandHandler logoutHandler,
         ILogger<AuthController> logger)
     {
         _loginHandler = loginHandler;
         _registerHandler = registerHandler;
-        _getUserHandler = getUserHandler;
         _logoutHandler = logoutHandler;
         _logger = logger;
     }
@@ -104,7 +100,7 @@ public class AuthController : ControllerBase
 
             _logger.LogInformation("✅ Usuario registrado correctamente: {Email}", result.Email);
 
-            return CreatedAtAction(nameof(GetCurrentUser), null, new { success = true, data = result });
+            return CreatedAtAction(nameof(Register), null, new { success = true, data = result });
         }
         catch (Exception ex)
         {
@@ -114,103 +110,6 @@ public class AuthController : ControllerBase
                 success = false,
                 message = "💥 Ocurrió un error interno al procesar tu solicitud.",
                 details = ex.Message
-            });
-        }
-    }
-
-    [Authorize]
-    [HttpGet("user")]
-    public async Task<IActionResult> GetCurrentUser()
-    {
-        try
-        {
-            // Obtener el ID del usuario desde el token JWT
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
-                           ?? User.FindFirst("sub")?.Value;
-
-            if (string.IsNullOrEmpty(userIdClaim))
-            {
-                _logger.LogWarning("⚠️ No se pudo obtener el ID del usuario del token");
-                return Unauthorized(new
-                {
-                    success = false,
-                    message = "Token inválido: no contiene información del usuario"
-                });
-            }
-
-            if (!uint.TryParse(userIdClaim, out uint userId))
-            {
-                _logger.LogWarning("⚠️ ID de usuario inválido en el token: {UserIdClaim}", userIdClaim);
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Token inválido: ID de usuario no válido"
-                });
-            }
-
-            var query = new ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQuery(userId);
-            var result = await _getUserHandler.Handle(query, CancellationToken.None);
-
-            if (result == null)
-            {
-                _logger.LogWarning("❌ Usuario no encontrado: {Id}", userId);
-                return NotFound(new
-                {
-                    success = false,
-                    message = "Usuario no encontrado"
-                });
-            }
-
-            _logger.LogInformation("✅ Usuario recuperado desde JWT: {Id} - {Email}", userId, result.Email);
-            return Ok(new
-            {
-                success = true,
-                data = result
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "💥 Error al recuperar usuario actual");
-            return StatusCode(500, new
-            {
-                success = false,
-                message = "Error interno al recuperar el usuario"
-            });
-        }
-    }
-
-    [HttpGet("user/{id}")]
-    public async Task<IActionResult> GetById(uint id)
-    {
-        try
-        {
-            var query = new ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQuery(id);
-            var result = await _getUserHandler.Handle(query, CancellationToken.None);
-
-            if (result == null)
-            {
-                _logger.LogWarning("❌ Usuario no encontrado: {Id}", id);
-                return NotFound(new
-                {
-                    success = false,
-                    message = "Usuario no encontrado"
-                });
-            }
-
-            _logger.LogInformation("✅ Usuario recuperado: {Id}", id);
-            return Ok(new
-            {
-                success = true,
-                data = result
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "💥 Error al recuperar usuario {Id}", id);
-            return StatusCode(500, new
-            {
-                success = false,
-                message = "Error interno al recuperar el usuario"
             });
         }
     }
