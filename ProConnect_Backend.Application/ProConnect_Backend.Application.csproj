@@ -1,7 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
     <ItemGroup>
-      <ProjectReference Include="..\ProConnect_Backend.Infrastructure\ProConnect_Backend.Infrastructure.csproj" />
+      <!-- Application solo depende de Domain -->
       <ProjectReference Include="..\ProConnect_Backend.Domain\ProConnect_Backend.Domain.csproj" />
     </ItemGroup>
 
@@ -16,11 +22,5 @@
       <Folder Include="UseCases\Users\Command\" />
       <Folder Include="UseCases\Users\Query\" />
     </ItemGroup>
-
-    <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
 
 </Project>
