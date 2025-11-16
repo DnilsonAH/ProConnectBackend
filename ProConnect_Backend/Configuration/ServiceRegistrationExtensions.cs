@@ -37,7 +37,7 @@ public static class ServiceRegistrationExtensions
                 })
         );
         
-        // Registro de Repositorios (13 repositorios específicos)
+        // Registro de Repositorios (14 repositorios específicos)
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IJwtBlacklistRepository, JwtBlacklistRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
@@ -51,6 +51,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<IVerificationDocumentRepository, VerificationDocumentRepository>();
         services.AddScoped<IWeeklyAvailabilityRepository, WeeklyAvailabilityRepository>();
         services.AddScoped<IScheduledRepository, ScheduledRepository>();
+        services.AddScoped<IProfileSpecializationRepository, ProfileSpecializationRepository>();
         
         // Registro de UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();

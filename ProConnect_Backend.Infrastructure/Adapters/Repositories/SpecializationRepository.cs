@@ -14,7 +14,7 @@ public class SpecializationRepository : GenericRepository<Specialization>, ISpec
     public async Task<IEnumerable<Specialization>> GetSpecializationsByProfileIdAsync(uint profileId)
     {
         return await _dbContext.Specializations
-            .Where(s => s.ProfessionalProfiles.Any(p => p.ProfileId == profileId))
+            .Where(s => s.ProfileSpecializations.Any(ps => ps.ProfileId == profileId))
             .ToListAsync();
     }
 

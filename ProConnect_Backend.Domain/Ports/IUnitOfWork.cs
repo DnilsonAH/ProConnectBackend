@@ -19,6 +19,7 @@ public interface IUnitOfWork : IDisposable
     IVerificationDocumentRepository VerificationDocumentRepository { get; }
     IWeeklyAvailabilityRepository WeeklyAvailabilityRepository { get; }
     IScheduledRepository ScheduledRepository { get; }
+    IProfileSpecializationRepository ProfileSpecializationRepository { get; }
     
     // Commit de cambios
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

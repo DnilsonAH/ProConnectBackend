@@ -14,17 +14,19 @@ public class ProfessionalProfileRepository : GenericRepository<ProfessionalProfi
     public async Task<ProfessionalProfile?> GetByUserIdAsync(uint userId)
     {
         return await _dbContext.ProfessionalProfiles
-            .Include(p => p.Specialization)
-            .Include(p => p)
+            .Include(p => p.ProfileSpecializations)
+                .ThenInclude(ps => ps.Specialization)
+            .Include(p => p.User)
             .FirstOrDefaultAsync(p => p.UserId == userId);
     }
 
     public async Task<IEnumerable<ProfessionalProfile>> GetProfilesByProfessionAsync(uint professionId)
     {
         return await _dbContext.ProfessionalProfiles
-            .Where(p => p.Specialization.ProfessionId == professionId)
+            .Where(p => p.ProfileSpecializations.Any(ps => ps.Specialization.ProfessionId == professionId))
             .Include(p => p.User)
-            .Include(p => p)
+            .Include(p => p.ProfileSpecializations)
+                .ThenInclude(ps => ps.Specialization)
             .ToListAsync();
     }
 
@@ -32,8 +34,8 @@ public class ProfessionalProfileRepository : GenericRepository<ProfessionalProfi
     {
         return await _dbContext.ProfessionalProfiles
             .Include(p => p.User)
-            .Include(p => p.Specialization)
-            .Include(p => p)
+            .Include(p => p.ProfileSpecializations)
+                .ThenInclude(ps => ps.Specialization)
             .FirstOrDefaultAsync(p => p.ProfileId == profileId);
     }
 
@@ -42,7 +44,8 @@ public class ProfessionalProfileRepository : GenericRepository<ProfessionalProfi
         return await _dbContext.ProfessionalProfiles
             .Where(p => p.UserId > 0)
             .Include(p => p.User)
-            .Include(p => p.Specialization)
+            .Include(p => p.ProfileSpecializations)
+                .ThenInclude(ps => ps.Specialization)
             .ToListAsync();
     }
 
@@ -52,7 +55,8 @@ public class ProfessionalProfileRepository : GenericRepository<ProfessionalProfi
         return await _dbContext.ProfessionalProfiles
             .Where(p => p.User.WeeklyAvailabilities.Any(wa => wa.WeekDay == dayString && wa.IsAvailable == true))
             .Include(p => p.User)
-            .Include(p => p.Specialization)
+            .Include(p => p.ProfileSpecializations)
+                .ThenInclude(ps => ps.Specialization)
             .ToListAsync();
     }
 }

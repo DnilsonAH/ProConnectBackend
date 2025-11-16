@@ -33,7 +33,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
     public async Task<User?> GetUserWithProfilesAsync(uint userId)
     {
         return await _dbContext.Users
-            .Include(u => u.ProfessionalProfiles)
+            .Include(u => u.ProfessionalProfile)
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
 
@@ -41,7 +41,7 @@ public class UserRepository : GenericRepository<User>, IUserRepository
     {
         return await _dbContext.Users
             .Where(u => u.Role == "professional")
-            .Include(u => u.ProfessionalProfiles)
+            .Include(u => u.ProfessionalProfile)
             .ToListAsync();
     }
 }

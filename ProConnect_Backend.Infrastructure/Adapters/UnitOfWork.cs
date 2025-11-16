@@ -24,6 +24,7 @@ public class UnitOfWork: IUnitOfWork
     public IVerificationDocumentRepository VerificationDocumentRepository { get; }
     public IWeeklyAvailabilityRepository WeeklyAvailabilityRepository { get; }
     public IScheduledRepository ScheduledRepository { get; }
+    public IProfileSpecializationRepository ProfileSpecializationRepository { get; }
 
     public UnitOfWork(
         ProConnectDbContext dbContext,
@@ -39,7 +40,8 @@ public class UnitOfWork: IUnitOfWork
         IVerificationRepository verificationRepository,
         IVerificationDocumentRepository verificationDocumentRepository,
         IWeeklyAvailabilityRepository weeklyAvailabilityRepository,
-        IScheduledRepository scheduledRepository)
+        IScheduledRepository scheduledRepository,
+        IProfileSpecializationRepository profileSpecializationRepository)
     { 
         _dbContext = dbContext;
         UserRepository = userRepository;
@@ -55,6 +57,7 @@ public class UnitOfWork: IUnitOfWork
         VerificationDocumentRepository = verificationDocumentRepository;
         WeeklyAvailabilityRepository = weeklyAvailabilityRepository;
         ScheduledRepository = scheduledRepository;
+        ProfileSpecializationRepository = profileSpecializationRepository;
     }
     
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
