@@ -1,6 +1,9 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using ProConnect_Backend.Application.UseCases.Users.Query;
+using ProConnect_Backend.Application.UseCases.Users.Queries.GetUserInfo;
+using ProConnect_Backend.Application.UseCases.Users.Commands.UpdateUser;
+using ProConnect_Backend.Domain.DTOsRequest.UserDTOs;
 
 namespace ProConnect_Backend.Controllers;
 
@@ -8,14 +11,14 @@ namespace ProConnect_Backend.Controllers;
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
-    private readonly GetUserByIdQueryHandler _getUserHandler;
+    private readonly IMediator _mediator;
     private readonly ILogger<UserController> _logger;
 
     public UserController(
-        GetUserByIdQueryHandler getUserHandler,
+        IMediator mediator,
         ILogger<UserController> logger)
     {
-        _getUserHandler = getUserHandler;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -54,7 +57,7 @@ public class UserController : ControllerBase
             }
 
             var query = new GetUserByIdQuery(userId);
-            var result = await _getUserHandler.Handle(query, CancellationToken.None);
+            var result = await _mediator.Send(query);
 
             if (result == null)
             {
@@ -95,7 +98,7 @@ public class UserController : ControllerBase
         try
         {
             var query = new GetUserByIdQuery(id);
-            var result = await _getUserHandler.Handle(query, CancellationToken.None);
+            var result = await _mediator.Send(query);
 
             if (result == null)
             {
@@ -129,20 +132,65 @@ public class UserController : ControllerBase
     /// Actualiza la información de un usuario (requiere autenticación)
     /// </summary>
     /// <param name="id">ID del usuario a actualizar</param>
+    /// <param name="dto">Datos del usuario a actualizar</param>
     /// <returns>Usuario actualizado</returns>
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser(uint id)
+    public async Task<IActionResult> UpdateUser(uint id, [FromBody] UpdateUserRequestDto dto)
     {
         try
         {
-            // TODO: Implementar UpdateUserCommand y UpdateUserCommandHandler
-            _logger.LogWarning("⚠️ Endpoint PUT /api/user/{id} aún no implementado", id);
-            
-            return StatusCode(501, new
+            if (!ModelState.IsValid)
             {
-                success = false,
-                message = "🚧 Endpoint en desarrollo. Próximamente disponible."
+                _logger.LogWarning("❌ Datos inválidos enviados a UpdateUser");
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "⚠️ Los datos enviados no son válidos.",
+                    errors = ModelState
+                });
+            }
+
+            // Verificar que el usuario autenticado solo pueda actualizar su propia información
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+                           ?? User.FindFirst("sub")?.Value;
+            
+            if (string.IsNullOrEmpty(userIdClaim) || !uint.TryParse(userIdClaim, out uint authenticatedUserId))
+            {
+                return Unauthorized(new
+                {
+                    success = false,
+                    message = "Token inválido"
+                });
+            }
+
+            // Solo permitir que un usuario actualice su propia información (a menos que sea admin)
+            var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            if (authenticatedUserId != id && userRole != "Admin")
+            {
+                _logger.LogWarning("🚫 Usuario {AuthUserId} intentó actualizar usuario {TargetUserId}", authenticatedUserId, id);
+                return Forbid();
+            }
+
+            var command = new UpdateUserCommand(id, dto);
+            var result = await _mediator.Send(command);
+
+            if (result == null)
+            {
+                _logger.LogWarning("❌ Usuario no encontrado: {Id}", id);
+                return NotFound(new
+                {
+                    success = false,
+                    message = "Usuario no encontrado"
+                });
+            }
+
+            _logger.LogInformation("✅ Usuario actualizado: {Id}", id);
+            return Ok(new
+            {
+                success = true,
+                message = "Usuario actualizado exitosamente",
+                data = result
             });
         }
         catch (Exception ex)

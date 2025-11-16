@@ -1,9 +1,10 @@
+using MediatR;
 using ProConnect_Backend.Domain.Ports;
 using ProConnect_Backend.Domain.Ports.IServices;
 
-namespace ProConnect_Backend.Application.UseCases.Logout.Command;
+namespace ProConnect_Backend.Application.UseCases.Auth.Commands.Logout;
 
-public class LogoutCommandHandler
+public class LogoutCommandHandler : IRequestHandler<LogoutCommand, bool>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IJwtTokenService _jwtTokenService;
@@ -14,12 +15,12 @@ public class LogoutCommandHandler
         _jwtTokenService = jwtTokenService;
     }
 
-    public async Task<bool> Handle(LogoutCommand command, CancellationToken cancellationToken = default)
+    public async Task<bool> Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
         try
         {
             // Parsear token usando servicio de Infrastructure
-            var tokenData = _jwtTokenService.ParseToken(command.Token);
+            var tokenData = _jwtTokenService.ParseToken(request.Token);
             
             if (tokenData == null)
             {

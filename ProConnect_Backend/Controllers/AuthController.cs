@@ -1,8 +1,9 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using ProConnect_Backend.Application.DTOsResponse.LoginDTOs;
-using ProConnect_Backend.Application.UseCases.Login.Command;
-using ProConnect_Backend.Application.UseCases.Logout.Command;
+using ProConnect_Backend.Application.UseCases.Auth.Commands.Login;
+using ProConnect_Backend.Application.UseCases.Auth.Commands.Logout;
+using ProConnect_Backend.Application.UseCases.Auth.Commands.Register;
 using ProConnect_Backend.Domain.DTOsRequest.AuthDtos;
 
 namespace ProConnect_Backend.Controllers;
@@ -11,20 +12,14 @@ namespace ProConnect_Backend.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly LoginCommandHandler _loginHandler;
-    private readonly ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler _registerHandler;
-    private readonly LogoutCommandHandler _logoutHandler;
+    private readonly IMediator _mediator;
     private readonly ILogger<AuthController> _logger;
 
     public AuthController(
-        LoginCommandHandler loginHandler,
-        ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler registerHandler,
-        LogoutCommandHandler logoutHandler,
+        IMediator mediator,
         ILogger<AuthController> logger)
     {
-        _loginHandler = loginHandler;
-        _registerHandler = registerHandler;
-        _logoutHandler = logoutHandler;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -45,7 +40,7 @@ public class AuthController : ControllerBase
             }
 
             var command = new LoginCommand(dto);
-            var result = await _loginHandler.Handle(command);
+            var result = await _mediator.Send(command);
 
             if (result == null)
             {
@@ -95,8 +90,8 @@ public class AuthController : ControllerBase
                 });
             }
 
-            var command = new ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommand(dto);
-            var result = await _registerHandler.Handle(command, CancellationToken.None);
+            var command = new RegisterCommand(dto);
+            var result = await _mediator.Send(command);
 
             _logger.LogInformation("✅ Usuario registrado correctamente: {Email}", result.Email);
 
@@ -136,7 +131,7 @@ public class AuthController : ControllerBase
             var token = authHeader.Substring("Bearer ".Length).Trim();
 
             var command = new LogoutCommand(token);
-            var result = await _logoutHandler.Handle(command);
+            var result = await _mediator.Send(command);
 
             if (!result)
             {

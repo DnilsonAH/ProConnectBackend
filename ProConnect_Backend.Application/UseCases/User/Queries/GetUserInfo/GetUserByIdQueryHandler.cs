@@ -2,7 +2,7 @@ using MediatR;
 using ProConnect_Backend.Application.DTOsResponse.UserDTOs;
 using ProConnect_Backend.Domain.Ports;
 
-namespace ProConnect_Backend.Application.UseCases.Users.Query;
+namespace ProConnect_Backend.Application.UseCases.Users.Queries.GetUserInfo;
 
 public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, GetUserInfoResponseDto?>
 {

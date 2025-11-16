@@ -4,7 +4,7 @@ using ProConnect_Backend.Domain.Entities;
 using ProConnect_Backend.Domain.Ports;
 using ProConnect_Backend.Domain.Ports.IServices;
 
-namespace ProConnect_Backend.Application.UseCases.Users.Command;
+namespace ProConnect_Backend.Application.UseCases.Auth.Commands.Register;
 
 public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterResponseDto>
 {

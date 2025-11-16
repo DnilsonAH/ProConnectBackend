@@ -100,11 +100,8 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         
-        // Registro de Handlers de MediatR (Commands y Queries)
-        services.AddScoped<ProConnect_Backend.Application.UseCases.Login.Command.LoginCommandHandler>();
-        services.AddScoped<ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler>();
-        services.AddScoped<ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQueryHandler>();
-        services.AddScoped<ProConnect_Backend.Application.UseCases.Logout.Command.LogoutCommandHandler>();
+        // MediatR está configurado en ApplicationServicesExtensions
+        // Los handlers se registran automáticamente por MediatR
         
         // 4. Configuración de Autenticación JWT
         var jwtSettings = configuration.GetSection("JwtSettings");
