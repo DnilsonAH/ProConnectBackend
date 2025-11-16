@@ -12,19 +12,25 @@
 
 ## 📁 Inventario de Archivos
 
-### **Controllers/** (2 archivos)
+### **Controllers/** (6 archivos)
 
 #### **AuthController.cs**
-Autenticación:
-- `POST /api/auth/login` ❌ Pública - Retorna JWT
-- `POST /api/auth/register` ❌ Pública - Crea usuario con rol "Client"
-- `POST /api/auth/logout` ✅ JWT Required - Revoca token
+Autenticación (Login, Register, Logout)
 
 #### **UserController.cs**
-Gestión de usuarios:
-- `GET /api/user/me` ✅ JWT Required - Info usuario autenticado
-- `GET /api/user/{id}` ❌ Pública - Info usuario por ID
-- `PUT /api/user/{id}` ✅ JWT Required - Actualizar usuario (TODO)
+Gestión de usuarios (GetCurrentUser, GetById, Update)
+
+#### **ProfessionCategoryController.cs**
+CRUD de categorías de profesión (Create, GetAll, GetById, Update, Delete)
+
+#### **ProfessionController.cs**
+CRUD de profesiones (Create, GetAll, GetById, GetByCategory, Update, Delete)
+
+#### **SpecializationController.cs**
+CRUD de especializaciones (Create, GetAll, GetById, GetByProfession, Update, Delete)
+
+#### **ProfileSpecializationController.cs**
+Asignación de especializaciones a perfiles (Assign, Remove, GetByProfile, GetBySpecialization)
 
 ### **Middleware/**
 - `TokenValidationMiddleware.cs` - Valida JWT contra blacklist ANTES de AuthenticationMiddleware
@@ -32,51 +38,24 @@ Gestión de usuarios:
 ### **Configuration/**
 - `ServiceRegistrationExtensions.cs` - Registra en DI:
   - DbContext (MySQL con SSL)
-  - 13 Repositories
+  - 14 Repositories (User, JwtBlacklist, Session, Payment, Review, ProfessionalProfile, Profession, ProfessionCategory, Specialization, ProfileSpecialization, Verification, VerificationDocument, WeeklyAvailability, Scheduled)
   - UnitOfWork
   - 2 Services (PasswordHasher, JwtTokenService)
-  - 4 Handlers (Login, Register, Logout, GetUserById)
+  - Handlers (MediatR auto-registra todos los handlers)
   - JWT Authentication
   - AutoMapper
+
+### **API_Documentation/**
+- `README.md` - Índice general de endpoints
+- `ProfessionCategory.md` - Documentación del controlador
+- `Profession.md` - Documentación del controlador
+- `Specialization.md` - Documentación del controlador
+- `ProfileSpecialization.md` - Documentación del controlador
 
 ### **Otros**
 - `Program.cs` - Pipeline: Auth → TokenValidation → Authorization → Controllers
 - `appsettings.json` - Configuración (actualmente usa .env)
 - `Properties/launchSettings.json` - Configuración de launch (puerto 5200)
-
----
-
-## 🔗 Endpoints Resumen
-
-| Método | Ruta | Auth | Descripción |
-|--------|------|------|-------------|
-| POST | `/api/auth/login` | ❌ | Login (retorna JWT) |
-| POST | `/api/auth/register` | ❌ | Registro |
-| POST | `/api/auth/logout` | ✅ | Logout (revoca token) |
-| GET | `/api/user/me` | ✅ | Usuario autenticado |
-| GET | `/api/user/{id}` | ❌ | Usuario por ID |
-| PUT | `/api/user/{id}` | ✅ | Actualizar usuario (TODO) |
-
----
-
-## 🎯 Formato de Respuesta Estándar
-
-**Success**:
-```json
-{
-  "success": true,
-  "message": "🎉 Mensaje descriptivo",
-  "data": { ... }
-}
-```
-
-**Error**:
-```json
-{
-  "success": false,
-  "message": "❌ Descripción del error"
-}
-```
 
 ---
 
