@@ -19,55 +19,14 @@ public static class ServiceRegistrationExtensions
     public static IServiceCollection AddUserControllerServices(this IServiceCollection services,
         IConfiguration configuration)
     {
-        // 1. Configuración del DbContext (MySQL con SSL para Google Cloud SQL)
+        // 1. Configuración del DbContext (MySQL)
         var connectionString = configuration.GetConnectionString("DefaultConnection") 
             ?? throw new InvalidOperationException("ConnectionString 'DefaultConnection' no está configurada");
         
-        // Buscar certificados SSL en la carpeta ssl-certs del proyecto
-        var solutionRoot = Directory.GetParent(Directory.GetCurrentDirectory())?.FullName 
-                          ?? Directory.GetCurrentDirectory();
-        var certPath = Path.Combine(solutionRoot, "ssl-certs");
+        Console.WriteLine("🔗 Conectando a MySQL sin SSL");
+        Console.WriteLine($"   💡 Usando credenciales de base de datos estándar");
         
-        // Asegurar que la carpeta existe
-        Directory.CreateDirectory(certPath);
-        
-        var clientCertPath = Path.Combine(certPath, "client-cert.pem");
-        var clientKeyPath = Path.Combine(certPath, "client-key.pem");
-        var serverCaPath = Path.Combine(certPath, "server-ca.pem");
-        
-        // Verificar si existen los 3 certificados
-        bool hasCertificates = File.Exists(clientCertPath) && 
-                              File.Exists(clientKeyPath) && 
-                              File.Exists(serverCaPath);
-        
-        // Asegurar que la cadena de conexión base termine con punto y coma
-        if (!connectionString.EndsWith(";"))
-        {
-            connectionString += ";";
-        }
-        
-        if (hasCertificates)
-        {
-            // Conexión SSL con certificados de cliente (autenticación mutua TLS)
-            connectionString += $"SslMode=Required;SslCa={serverCaPath};SslCert={clientCertPath};SslKey={clientKeyPath};";
-            Console.WriteLine("🔐 Certificados SSL encontrados - Usando autenticación con certificados de cliente");
-            Console.WriteLine($"   📁 Ruta: {certPath}");
-            Console.WriteLine($"   ✅ client-cert.pem");
-            Console.WriteLine($"   ✅ client-key.pem");
-            Console.WriteLine($"   ✅ server-ca.pem");
-            Console.WriteLine($"   🛠️ Entorno: DESARROLLO (Development)");
-        }
-        else
-        {
-            // Conexión SSL sin certificados de cliente (solo cifrado)
-            connectionString += "SslMode=Required;";
-            Console.WriteLine("⚠️ Certificados SSL no encontrados - Usando SSL sin certificados de cliente");
-            Console.WriteLine($"   📁 Buscado en: {certPath}");
-            Console.WriteLine($"   💡 Coloca los certificados ahí si deseas autenticación con certificados");
-            Console.WriteLine($"   🚀 Entorno: PRODUCCIÓN (Production)");
-        }
-        
-        // 2. Configuración del DbContext con MySQL y SSL
+        // 2. Configuración del DbContext con MySQL
         services.AddDbContext<ProConnectDbContext>(options =>
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
                 mySqlOptions => {
