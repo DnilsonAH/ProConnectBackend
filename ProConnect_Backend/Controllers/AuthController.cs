@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using ProConnect_Backend.Application.UseCases.Auth.Commands.Login;
 using ProConnect_Backend.Application.UseCases.Auth.Commands.Logout;
 using ProConnect_Backend.Application.UseCases.Auth.Commands.Register;
+using ProConnect_Backend.Application.UseCases.Auth.Commands.ChangePassword;
 using ProConnect_Backend.Domain.DTOsRequest.AuthDtos;
 
 namespace ProConnect_Backend.Controllers;
@@ -157,6 +158,79 @@ public class AuthController : ControllerBase
             {
                 success = false,
                 message = "💥 Error interno al cerrar sesión",
+                details = ex.Message
+            });
+        }
+    }
+
+    /// <summary>
+    /// Cambia la contraseña del usuario autenticado
+    /// </summary>
+    /// <param name="dto">Datos para cambio de contraseña</param>
+    /// <returns>Resultado del cambio de contraseña</returns>
+    [Authorize]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto dto)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("❌ Datos inválidos enviados a change-password");
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "⚠️ Los datos enviados no son válidos.",
+                    errors = ModelState
+                });
+            }
+
+            // Obtener el ID del usuario desde el token JWT
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+                           ?? User.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !uint.TryParse(userIdClaim, out uint userId))
+            {
+                _logger.LogWarning("⚠️ Token inválido en change-password");
+                return Unauthorized(new
+                {
+                    success = false,
+                    message = "Token inválido"
+                });
+            }
+
+            var command = new ChangePasswordCommand(userId, dto);
+            var result = await _mediator.Send(command);
+
+            if (!result.Success)
+            {
+                _logger.LogWarning("❌ Cambio de contraseña fallido para usuario {UserId}: {Message}", userId, result.Message);
+                return BadRequest(new
+                {
+                    success = false,
+                    message = result.Message
+                });
+            }
+
+            _logger.LogInformation("✅ Contraseña actualizada correctamente para usuario {UserId}", userId);
+
+            return Ok(new
+            {
+                success = true,
+                message = "🔒 Contraseña actualizada exitosamente",
+                data = new
+                {
+                    changedAt = result.ChangedAt
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "💥 Error inesperado durante el cambio de contraseña");
+            return StatusCode(500, new
+            {
+                success = false,
+                message = "💥 Error interno al cambiar la contraseña",
                 details = ex.Message
             });
         }

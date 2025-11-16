@@ -18,6 +18,7 @@
 
     <ItemGroup>
       <Folder Include="DTOsResponse\UserDtos\" />
+      <Folder Include="UseCases\Auth\Commands\ChangePassword\" />
     </ItemGroup>
 
 </Project>
