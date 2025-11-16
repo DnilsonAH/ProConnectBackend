@@ -83,6 +83,18 @@ Console.WriteLine($"   - JWT Expiration: {Environment.GetEnvironmentVariable("JW
 Console.WriteLine();
 
 
+// Configuración CORS para permitir peticiones desde el frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:5200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // Permite enviar cookies y autenticación
+    });
+});
+
 // Registro de servicios generales
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -210,6 +222,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// IMPORTANTE: UseCors debe estar ANTES de UseAuthentication y UseAuthorization
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication(); // Middleware de autenticación
 app.UseMiddleware<TokenValidationMiddleware>(); // Middleware de validación de tokens revocados
