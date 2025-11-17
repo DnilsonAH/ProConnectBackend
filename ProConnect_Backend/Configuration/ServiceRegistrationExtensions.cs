@@ -4,18 +4,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using ProConnect_Backend.Application.UseCases.Login.Query;
-// using ProConnect_Backend.Domain.Interfaces; (not used)
 using ProConnect_Backend.Domain.Ports;
 using ProConnect_Backend.Domain.Ports.IRepositories;
+using ProConnect_Backend.Domain.Ports.IServices;
 using ProConnect_Backend.Infrastructure.Adapters;
 using ProConnect_Backend.Infrastructure.Adapters.Repositories;
 using ProConnect_Backend.Infrastructure.Data;
-// using ProConnect_Backend.Infrastructure.Repositories; (not present)
-/*using ProConnect_Backend.Domain.Ports.IServices;
-using ProConnect_Backend.Infrastructure.Adapters;
-using ProConnect_Backend.Infrastructure.Adapters.Repositories;
-using ProConnect_Backend.Infrastructure.Data;*/
 using ProConnect_Backend.Infrastructure.Services;
 
 namespace ProConnect_Backend.Configuration;
@@ -25,57 +19,14 @@ public static class ServiceRegistrationExtensions
     public static IServiceCollection AddUserControllerServices(this IServiceCollection services,
         IConfiguration configuration)
     {
-        // 1. Configuración del DbContext (MySQL con SSL para Google Cloud SQL)
+        // 1. Configuración del DbContext (MySQL)
         var connectionString = configuration.GetConnectionString("DefaultConnection") 
             ?? throw new InvalidOperationException("ConnectionString 'DefaultConnection' no está configurada");
         
-        // Obtener certificados SSL desde la configuración
-        var clientCert = configuration["SslCertificates:ClientCert"];
-        var clientKey = configuration["SslCertificates:ClientKey"];
-        var serverCa = configuration["SslCertificates:ServerCa"];
+        Console.WriteLine("🔗 Conectando a MySQL sin SSL");
+        Console.WriteLine($"   💡 Usando credenciales de base de datos estándar");
         
-        // Crear directorio temporal para los certificados si no existe
-        var certPath = Path.Combine(Path.GetTempPath(), "mysql_certs");
-        Directory.CreateDirectory(certPath);
-        
-        // Escribir certificados a archivos temporales
-        var clientCertPath = Path.Combine(certPath, "client-cert.pem");
-        var clientKeyPath = Path.Combine(certPath, "client-key.pem");
-        var serverCaPath = Path.Combine(certPath, "server-ca.pem");
-        
-        if (!string.IsNullOrEmpty(clientCert) && !string.IsNullOrEmpty(clientKey) && !string.IsNullOrEmpty(serverCa))
-        {
-            try
-            {
-                File.WriteAllText(clientCertPath, clientCert);
-                File.WriteAllText(clientKeyPath, clientKey);
-                File.WriteAllText(serverCaPath, serverCa);
-                
-                Console.WriteLine("🔐 Certificados SSL escritos en archivos temporales");
-                Console.WriteLine($"   - Ruta certificados: {certPath}");
-                
-                // Asegurar que la cadena de conexión base termine con punto y coma
-                if (!connectionString.EndsWith(";"))
-                {
-                    connectionString += ";";
-                }
-                
-                // Construir connection string con SSL
-                connectionString += $"SslMode=Required;SslCa={serverCaPath};SslCert={clientCertPath};SslKey={clientKeyPath};";
-                Console.WriteLine("✅ Conexión SSL configurada correctamente");
-                Console.WriteLine($"🔍 Longitud cadena de conexión: {connectionString.Length} caracteres");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Error al escribir certificados SSL: {ex.Message}");
-                throw;
-            }
-        }
-        else
-        {
-            Console.WriteLine("⚠️ Certificados SSL no configurados - Conexión sin SSL");
-        }
-        
+        // 2. Configuración del DbContext con MySQL
         services.AddDbContext<ProConnectDbContext>(options =>
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
                 mySqlOptions => {
@@ -85,27 +36,32 @@ public static class ServiceRegistrationExtensions
                         errorNumbersToAdd: null);
                 })
         );
-        // Registro de UnitOfWrok
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
-        // Los repositorios específicos son creados por el UoW,
-        //services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
+        
+        // Registro de Repositorios (14 repositorios específicos)
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IJwtBlacklistRepository, JwtBlacklistRepository>();
+        services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IReviewRepository, ReviewRepository>();
-        services.AddScoped<IScheduledRepository, ScheduledRepository>();
-        services.AddScoped<ISessionRepository, SessionRepository>();
-        services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IVerificationDocumentRepository, VerificationDocumentRepository>();
+        services.AddScoped<IProfessionalProfileRepository, ProfessionalProfileRepository>();
+        services.AddScoped<IProfessionRepository, ProfessionRepository>();
+        services.AddScoped<IProfessionCategoryRepository, ProfessionCategoryRepository>();
+        services.AddScoped<ISpecializationRepository, SpecializationRepository>();
         services.AddScoped<IVerificationRepository, VerificationRepository>();
+        services.AddScoped<IVerificationDocumentRepository, VerificationDocumentRepository>();
         services.AddScoped<IWeeklyAvailabilityRepository, WeeklyAvailabilityRepository>();
-        services.AddScoped<IRevokedTokenRepository, RevokedTokenRepository>();
-        services.AddScoped<LoginCommandHandler>();
-        services.AddScoped<ProConnect_Backend.Application.UseCases.Logout.Command.LogoutCommandHandler>();
-        // Register user command/query handlers
-        services.AddScoped<ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler>();
-        services.AddScoped<ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQueryHandler>();        // 3. Registro de Servicios (Adaptadores) servicios de terceros JWT, Hasheo de contraseñas
-
+        services.AddScoped<IScheduledRepository, ScheduledRepository>();
+        services.AddScoped<IProfileSpecializationRepository, ProfileSpecializationRepository>();
+        
+        // Registro de UnitOfWork
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
+        // 3. Registro de Servicios de Infraestructura (JWT, Hasheo de contraseñas)
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+        
+        // MediatR está configurado en ApplicationServicesExtensions
+        // Los handlers se registran automáticamente por MediatR
         
         // 4. Configuración de Autenticación JWT
         var jwtSettings = configuration.GetSection("JwtSettings");

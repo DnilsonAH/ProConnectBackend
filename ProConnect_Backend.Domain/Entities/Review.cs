@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ProConnect_Backend.Domain.Entities;
@@ -13,7 +13,7 @@ public partial class Review
 
     public uint ProfessionalId { get; set; }
 
-    public decimal Rating { get; set; }
+    public byte Rating { get; set; }
 
     public string? Comment { get; set; }
 

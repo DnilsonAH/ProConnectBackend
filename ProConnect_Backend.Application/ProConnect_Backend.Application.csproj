@@ -1,7 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
     <ItemGroup>
-      <ProjectReference Include="..\ProConnect_Backend.Infrastructure\ProConnect_Backend.Infrastructure.csproj" />
+      <!-- Application solo depende de Domain -->
       <ProjectReference Include="..\ProConnect_Backend.Domain\ProConnect_Backend.Domain.csproj" />
     </ItemGroup>
 
@@ -11,16 +17,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="DTOsResponse\ProfessionalProfileDtos\" />
       <Folder Include="DTOsResponse\UserDtos\" />
-      <Folder Include="UseCases\Users\Command\" />
-      <Folder Include="UseCases\Users\Query\" />
+      <Folder Include="UseCases\Auth\Commands\ChangePassword\" />
     </ItemGroup>
-
-    <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-    </PropertyGroup>
 
 </Project>

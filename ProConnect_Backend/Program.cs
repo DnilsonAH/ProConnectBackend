@@ -67,11 +67,6 @@ Console.WriteLine("🔗 Cadena de conexión generada:");
 Console.WriteLine($"   {fullConnectionString.Replace(dbPassword, "***PASSWORD***")}");
 Console.WriteLine();
 
-// Configurar certificados SSL para Google Cloud SQL
-builder.Configuration["SslCertificates:ClientCert"] = Environment.GetEnvironmentVariable("DB_CLIENT_CERT");
-builder.Configuration["SslCertificates:ClientKey"] = Environment.GetEnvironmentVariable("DB_CLIENT_KEY");
-builder.Configuration["SslCertificates:ServerCa"] = Environment.GetEnvironmentVariable("DB_SERVER_CA");
-
 builder.Configuration["JwtSettings:SecretKey"] = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 builder.Configuration["JwtSettings:Issuer"] = Environment.GetEnvironmentVariable("JWT_ISSUER");
 builder.Configuration["JwtSettings:Audience"] = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
@@ -85,9 +80,20 @@ Console.WriteLine($"   - Password configurado: {(!string.IsNullOrEmpty(dbPasswor
 Console.WriteLine($"   - JWT Issuer: {Environment.GetEnvironmentVariable("JWT_ISSUER")}");
 Console.WriteLine($"   - JWT Audience: {Environment.GetEnvironmentVariable("JWT_AUDIENCE")}");
 Console.WriteLine($"   - JWT Expiration: {Environment.GetEnvironmentVariable("JWT_EXPIRATION_HOURS")} horas");
-Console.WriteLine($"   - Certificados SSL: {(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DB_CLIENT_CERT")) ? "Configurados ✅" : "No configurados ⚠️")}");
 Console.WriteLine();
 
+
+// Configuración CORS para permitir peticiones desde el frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:5200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // Permite enviar cookies y autenticación
+    });
+});
 
 // Registro de servicios generales
 builder.Services.AddControllers();
@@ -170,7 +176,6 @@ using (var scope = app.Services.CreateScope())
         if (canConnect)
         {
             logger.LogInformation("✅ Conexión a la base de datos establecida exitosamente");
-            logger.LogInformation("🔒 Conexión SSL: Habilitada (Google Cloud SQL)");
         }
         else
         {
@@ -191,15 +196,14 @@ using (var scope = app.Services.CreateScope())
         }
         
         logger.LogError("💡 Verifica:");
-        logger.LogError("   1. Los certificados SSL son válidos y no han expirado");
-        logger.LogError("   2. La IP del servidor es accesible desde esta máquina");
-        logger.LogError("   3. El usuario tiene permisos para conectarse con SSL");
-        logger.LogError("   4. El puerto 3306 está abierto en el firewall");
+        logger.LogError("   1. La IP del servidor es accesible desde esta máquina");
+        logger.LogError("   2. Las credenciales de base de datos son correctas");
+        logger.LogError("   3. El puerto está abierto en el firewall");
     }
     catch (Exception ex)
     {
         logger.LogError(ex, "❌ Error al conectar con la base de datos");
-        logger.LogError("💡 Verifica las credenciales y certificados SSL en el archivo .env");
+        logger.LogError("💡 Verifica las credenciales en el archivo .env");
         logger.LogError("🔍 Tipo de error: {ExceptionType}", ex.GetType().Name);
         logger.LogError("🔍 Detalles del error: {Message}", ex.Message);
         
@@ -218,6 +222,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// IMPORTANTE: UseCors debe estar ANTES de UseAuthentication y UseAuthorization
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication(); // Middleware de autenticación
 app.UseMiddleware<TokenValidationMiddleware>(); // Middleware de validación de tokens revocados

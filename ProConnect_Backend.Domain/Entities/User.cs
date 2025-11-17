@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ProConnect_Backend.Domain.Entities;
@@ -7,7 +7,13 @@ public partial class User
 {
     public uint UserId { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string FirstName { get; set; } = null!;
+
+    public string? SecondName { get; set; }
+
+    public string FirstSurname { get; set; } = null!;
+
+    public string? SecondSurname { get; set; }
 
     public string Email { get; set; } = null!;
 
@@ -20,6 +26,8 @@ public partial class User
     public string Role { get; set; } = null!;
 
     public string? PhotoUrl { get; set; }
+
+    public virtual ICollection<JwtBlacklist> JwtBlacklists { get; set; } = new List<JwtBlacklist>();
 
     public virtual ProfessionalProfile? ProfessionalProfile { get; set; }
 

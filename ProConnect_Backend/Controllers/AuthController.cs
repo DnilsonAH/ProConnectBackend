@@ -1,10 +1,11 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using ProConnect_Backend.Application.DTOsResponse.LoginDTOs;
-using ProConnect_Backend.Application.UseCases.Login.Command;
-using ProConnect_Backend.Application.UseCases.Login.Query;
-using ProConnect_Backend.Application.UseCases.Users.Query;
-using ProConnect_Backend.Application.UseCases.Logout.Command;
+using ProConnect_Backend.Application.UseCases.Auth.Commands.Login;
+using ProConnect_Backend.Application.UseCases.Auth.Commands.Logout;
+using ProConnect_Backend.Application.UseCases.Auth.Commands.Register;
+using ProConnect_Backend.Application.UseCases.Auth.Commands.ChangePassword;
+using ProConnect_Backend.Domain.DTOsRequest.AuthDtos;
 
 namespace ProConnect_Backend.Controllers;
 
@@ -12,23 +13,14 @@ namespace ProConnect_Backend.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly LoginCommandHandler _loginHandler;
-    private readonly ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler _registerHandler;
-    private readonly ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQueryHandler _getUserHandler;
-    private readonly LogoutCommandHandler _logoutHandler;
+    private readonly IMediator _mediator;
     private readonly ILogger<AuthController> _logger;
 
     public AuthController(
-        LoginCommandHandler loginHandler,
-        ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommandHandler registerHandler,
-        ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQueryHandler getUserHandler,
-        LogoutCommandHandler logoutHandler,
+        IMediator mediator,
         ILogger<AuthController> logger)
     {
-        _loginHandler = loginHandler;
-        _registerHandler = registerHandler;
-        _getUserHandler = getUserHandler;
-        _logoutHandler = logoutHandler;
+        _mediator = mediator;
         _logger = logger;
     }
 
@@ -49,7 +41,7 @@ public class AuthController : ControllerBase
             }
 
             var command = new LoginCommand(dto);
-            var result = await _loginHandler.Handle(command);
+            var result = await _mediator.Send(command);
 
             if (result == null)
             {
@@ -99,12 +91,12 @@ public class AuthController : ControllerBase
                 });
             }
 
-            var command = new ProConnect_Backend.Application.UseCases.Users.Command.RegisterCommand(dto);
-            var result = await _registerHandler.Handle(command);
+            var command = new RegisterCommand(dto);
+            var result = await _mediator.Send(command);
 
             _logger.LogInformation("✅ Usuario registrado correctamente: {Email}", result.Email);
 
-            return CreatedAtAction(nameof(GetCurrentUser), null, new { success = true, data = result });
+            return CreatedAtAction(nameof(Register), null, new { success = true, data = result });
         }
         catch (Exception ex)
         {
@@ -114,103 +106,6 @@ public class AuthController : ControllerBase
                 success = false,
                 message = "💥 Ocurrió un error interno al procesar tu solicitud.",
                 details = ex.Message
-            });
-        }
-    }
-
-    [Authorize]
-    [HttpGet("user")]
-    public async Task<IActionResult> GetCurrentUser()
-    {
-        try
-        {
-            // Obtener el ID del usuario desde el token JWT
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
-                           ?? User.FindFirst("sub")?.Value;
-
-            if (string.IsNullOrEmpty(userIdClaim))
-            {
-                _logger.LogWarning("⚠️ No se pudo obtener el ID del usuario del token");
-                return Unauthorized(new
-                {
-                    success = false,
-                    message = "Token inválido: no contiene información del usuario"
-                });
-            }
-
-            if (!uint.TryParse(userIdClaim, out uint userId))
-            {
-                _logger.LogWarning("⚠️ ID de usuario inválido en el token: {UserIdClaim}", userIdClaim);
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Token inválido: ID de usuario no válido"
-                });
-            }
-
-            var query = new ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQuery(userId);
-            var result = await _getUserHandler.Handle(query);
-
-            if (result == null)
-            {
-                _logger.LogWarning("❌ Usuario no encontrado: {Id}", userId);
-                return NotFound(new
-                {
-                    success = false,
-                    message = "Usuario no encontrado"
-                });
-            }
-
-            _logger.LogInformation("✅ Usuario recuperado desde JWT: {Id} - {Email}", userId, result.Email);
-            return Ok(new
-            {
-                success = true,
-                data = result
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "💥 Error al recuperar usuario actual");
-            return StatusCode(500, new
-            {
-                success = false,
-                message = "Error interno al recuperar el usuario"
-            });
-        }
-    }
-
-    [HttpGet("user/{id}")]
-    public async Task<IActionResult> GetById(uint id)
-    {
-        try
-        {
-            var query = new ProConnect_Backend.Application.UseCases.Users.Query.GetUserByIdQuery(id);
-            var result = await _getUserHandler.Handle(query);
-
-            if (result == null)
-            {
-                _logger.LogWarning("❌ Usuario no encontrado: {Id}", id);
-                return NotFound(new
-                {
-                    success = false,
-                    message = "Usuario no encontrado"
-                });
-            }
-
-            _logger.LogInformation("✅ Usuario recuperado: {Id}", id);
-            return Ok(new
-            {
-                success = true,
-                data = result
-            });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "💥 Error al recuperar usuario {Id}", id);
-            return StatusCode(500, new
-            {
-                success = false,
-                message = "Error interno al recuperar el usuario"
             });
         }
     }
@@ -237,7 +132,7 @@ public class AuthController : ControllerBase
             var token = authHeader.Substring("Bearer ".Length).Trim();
 
             var command = new LogoutCommand(token);
-            var result = await _logoutHandler.Handle(command);
+            var result = await _mediator.Send(command);
 
             if (!result)
             {
@@ -263,6 +158,79 @@ public class AuthController : ControllerBase
             {
                 success = false,
                 message = "💥 Error interno al cerrar sesión",
+                details = ex.Message
+            });
+        }
+    }
+
+    /// <summary>
+    /// Cambia la contraseña del usuario autenticado
+    /// </summary>
+    /// <param name="dto">Datos para cambio de contraseña</param>
+    /// <returns>Resultado del cambio de contraseña</returns>
+    [Authorize]
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto dto)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("❌ Datos inválidos enviados a change-password");
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "⚠️ Los datos enviados no son válidos.",
+                    errors = ModelState
+                });
+            }
+
+            // Obtener el ID del usuario desde el token JWT
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value 
+                           ?? User.FindFirst("sub")?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !uint.TryParse(userIdClaim, out uint userId))
+            {
+                _logger.LogWarning("⚠️ Token inválido en change-password");
+                return Unauthorized(new
+                {
+                    success = false,
+                    message = "Token inválido"
+                });
+            }
+
+            var command = new ChangePasswordCommand(userId, dto);
+            var result = await _mediator.Send(command);
+
+            if (!result.Success)
+            {
+                _logger.LogWarning("❌ Cambio de contraseña fallido para usuario {UserId}: {Message}", userId, result.Message);
+                return BadRequest(new
+                {
+                    success = false,
+                    message = result.Message
+                });
+            }
+
+            _logger.LogInformation("✅ Contraseña actualizada correctamente para usuario {UserId}", userId);
+
+            return Ok(new
+            {
+                success = true,
+                message = "🔒 Contraseña actualizada exitosamente",
+                data = new
+                {
+                    changedAt = result.ChangedAt
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "💥 Error inesperado durante el cambio de contraseña");
+            return StatusCode(500, new
+            {
+                success = false,
+                message = "💥 Error interno al cambiar la contraseña",
                 details = ex.Message
             });
         }

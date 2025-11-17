@@ -6,17 +6,21 @@ namespace ProConnect_Backend.Domain.Ports;
 public interface IUnitOfWork : IDisposable
 {
     // Repositorios
+    IUserRepository UserRepository { get; }
+    IJwtBlacklistRepository JwtBlacklistRepository { get; }
+    ISessionRepository SessionRepository { get; }
     IPaymentRepository PaymentRepository { get; }
     IReviewRepository ReviewRepository { get; }
-    IScheduledRepository ScheduledRepository { get; }
-    ISessionRepository SessionRepository { get; }
-    ISpecialtyRepository SpecialtyRepository { get; }
-    IUserRepository UserRepository { get; }
-    IWeeklyAvailabilityRepository WeeklyAvailabilityRepository { get; }
-    IVerificationDocumentRepository VerificationDocumentRepository { get; }
+    IProfessionalProfileRepository ProfessionalProfileRepository { get; }
+    IProfessionRepository ProfessionRepository { get; }
+    IProfessionCategoryRepository ProfessionCategoryRepository { get; }
+    ISpecializationRepository SpecializationRepository { get; }
     IVerificationRepository VerificationRepository { get; }
-    IRevokedTokenRepository RevokedTokenRepository { get; }
+    IVerificationDocumentRepository VerificationDocumentRepository { get; }
+    IWeeklyAvailabilityRepository WeeklyAvailabilityRepository { get; }
+    IScheduledRepository ScheduledRepository { get; }
+    IProfileSpecializationRepository ProfileSpecializationRepository { get; }
     
-    // Commmit de cambios
+    // Commit de cambios
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
