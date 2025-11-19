@@ -8,27 +8,38 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
-// Buscar .env en varios lugares (project root, parent, Infrastructure)
-var candidatePaths = new[]
-{
-    Path.Combine(Directory.GetCurrentDirectory(), ".env"),
-    Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.FullName, ".env"),
-    Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.FullName, "ProConnect_Backend.Infrastructure", ".env")
-};
+// Intentar cargar .env solo en desarrollo local (no en Docker/Fly.io)
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+var isRunningInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false;
+var isLocalDevelopment = !isRunningInContainer;
 
-var envPath = candidatePaths.FirstOrDefault(File.Exists);
-
-if (!string.IsNullOrEmpty(envPath))
+if (isLocalDevelopment)
 {
-    Console.WriteLine($"📂 Cargando archivo .env desde: {envPath}");
-    Env.Load(envPath);
-    Console.WriteLine("✅ Variables de entorno cargadas exitosamente");
+    var candidatePaths = new[]
+    {
+        Path.Combine(Directory.GetCurrentDirectory(), ".env"),
+        Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.FullName, ".env"),
+        Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory())!.FullName, "ProConnect_Backend.Infrastructure", ".env")
+    };
+
+    var envPath = candidatePaths.FirstOrDefault(File.Exists);
+
+    if (!string.IsNullOrEmpty(envPath))
+    {
+        Console.WriteLine($"📂 Cargando archivo .env desde: {envPath}");
+        Env.Load(envPath);
+        Console.WriteLine("✅ Variables de entorno cargadas exitosamente desde .env");
+    }
+    else
+    {
+        Console.WriteLine($"⚠️ Advertencia: No se encontró el archivo .env en desarrollo local");
+        Console.WriteLine("Rutas buscadas:");
+        foreach (var p in candidatePaths) Console.WriteLine($"   - {p}");
+    }
 }
 else
 {
-    Console.WriteLine($"⚠️ Advertencia: No se encontró el archivo .env en rutas buscadas:");
-    foreach (var p in candidatePaths) Console.WriteLine($"   - {p}");
-    Console.WriteLine("💡 La aplicación usará las variables de entorno del sistema");
+    Console.WriteLine($"🌐 Entorno: {environment} - Usando variables de entorno del sistema (Fly.io secrets)");
 }
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,17 +51,31 @@ var dbDatabase = Environment.GetEnvironmentVariable("DB_DATABASE");
 var dbUser = Environment.GetEnvironmentVariable("DB_USER");
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
+// Configuración JWT
+var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+var jwtExpirationHours = Environment.GetEnvironmentVariable("JWT_EXPIRATION_HOURS");
+
 // Validar que las variables críticas estén configuradas
 if (string.IsNullOrEmpty(dbServer) || string.IsNullOrEmpty(dbDatabase) || 
-    string.IsNullOrEmpty(dbUser) || string.IsNullOrEmpty(dbPassword))
+    string.IsNullOrEmpty(dbUser) || string.IsNullOrEmpty(dbPassword) ||
+    string.IsNullOrEmpty(jwtSecretKey) || string.IsNullOrEmpty(jwtIssuer) || 
+    string.IsNullOrEmpty(jwtAudience))
 {
-    Console.WriteLine("❌ ERROR: Variables de entorno de base de datos no configuradas correctamente");
+    Console.WriteLine("❌ ERROR: Variables de entorno no configuradas correctamente");
+    Console.WriteLine("Base de datos:");
     Console.WriteLine($"   DB_SERVER: {(string.IsNullOrEmpty(dbServer) ? "❌ NO CONFIGURADO" : "✅")}");
-    Console.WriteLine($"   DB_PORT: {(string.IsNullOrEmpty(dbPort) ? "❌ NO CONFIGURADO" : "✅")}");
+    Console.WriteLine($"   DB_PORT: {(string.IsNullOrEmpty(dbPort) ? "❌ NO CONFIGURADO (usando 3306)" : "✅")}");
     Console.WriteLine($"   DB_DATABASE: {(string.IsNullOrEmpty(dbDatabase) ? "❌ NO CONFIGURADO" : "✅")}");
     Console.WriteLine($"   DB_USER: {(string.IsNullOrEmpty(dbUser) ? "❌ NO CONFIGURADO" : "✅")}");
     Console.WriteLine($"   DB_PASSWORD: {(string.IsNullOrEmpty(dbPassword) ? "❌ NO CONFIGURADO" : "✅")}");
-    throw new InvalidOperationException("Variables de entorno de base de datos requeridas no están configuradas");
+    Console.WriteLine("JWT:");
+    Console.WriteLine($"   JWT_SECRET_KEY: {(string.IsNullOrEmpty(jwtSecretKey) ? "❌ NO CONFIGURADO" : "✅")}");
+    Console.WriteLine($"   JWT_ISSUER: {(string.IsNullOrEmpty(jwtIssuer) ? "❌ NO CONFIGURADO" : "✅")}");
+    Console.WriteLine($"   JWT_AUDIENCE: {(string.IsNullOrEmpty(jwtAudience) ? "❌ NO CONFIGURADO" : "✅")}");
+    Console.WriteLine($"   JWT_EXPIRATION_HOURS: {(string.IsNullOrEmpty(jwtExpirationHours) ? "⚠️ NO CONFIGURADO (usando default)" : "✅")}");
+    throw new InvalidOperationException("Variables de entorno requeridas no están configuradas");
 }
 
 // Sobrescribir configuraciones con variables de entorno
@@ -67,19 +92,20 @@ Console.WriteLine("🔗 Cadena de conexión generada:");
 Console.WriteLine($"   {fullConnectionString.Replace(dbPassword, "***PASSWORD***")}");
 Console.WriteLine();
 
-builder.Configuration["JwtSettings:SecretKey"] = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-builder.Configuration["JwtSettings:Issuer"] = Environment.GetEnvironmentVariable("JWT_ISSUER");
-builder.Configuration["JwtSettings:Audience"] = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
-builder.Configuration["JwtSettings:ExpirationHours"] = Environment.GetEnvironmentVariable("JWT_EXPIRATION_HOURS");
+builder.Configuration["JwtSettings:SecretKey"] = jwtSecretKey;
+builder.Configuration["JwtSettings:Issuer"] = jwtIssuer;
+builder.Configuration["JwtSettings:Audience"] = jwtAudience;
+builder.Configuration["JwtSettings:ExpirationHours"] = jwtExpirationHours ?? "24";
 
 // Log de configuración cargada
 Console.WriteLine("⚙️ Configuración cargada:");
 Console.WriteLine($"   - Base de datos: {dbDatabase} en {dbServer}:{dbPort ?? "3306"}");
 Console.WriteLine($"   - Usuario DB: {dbUser}");
 Console.WriteLine($"   - Password configurado: {(!string.IsNullOrEmpty(dbPassword) ? $"✅ (longitud: {dbPassword.Length} caracteres)" : "❌ NO CONFIGURADO")}");
-Console.WriteLine($"   - JWT Issuer: {Environment.GetEnvironmentVariable("JWT_ISSUER")}");
-Console.WriteLine($"   - JWT Audience: {Environment.GetEnvironmentVariable("JWT_AUDIENCE")}");
-Console.WriteLine($"   - JWT Expiration: {Environment.GetEnvironmentVariable("JWT_EXPIRATION_HOURS")} horas");
+Console.WriteLine($"   - JWT Issuer: {jwtIssuer}");
+Console.WriteLine($"   - JWT Audience: {jwtAudience}");
+Console.WriteLine($"   - JWT SecretKey configurado: ✅ (longitud: {jwtSecretKey?.Length ?? 0} caracteres)");
+Console.WriteLine($"   - JWT Expiration: {jwtExpirationHours ?? "24"} horas");
 Console.WriteLine();
 
 

@@ -22,6 +22,12 @@ RUN dotnet publish -c Release -o /app/publish
 # Use the official ASP.NET Core runtime image for the final stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
+
+# Set environment variables for Docker/Production
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV ASPNETCORE_URLS=http://+:8080
+
 EXPOSE 8080
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "ProConnect_Backend.dll"]
