@@ -1,0 +1,7 @@
+using MediatR;
+using ProConnect_Backend.Application.DTOsResponse.WeeklyAvailabilityDTOs;
+using ProConnect_Backend.Domain.DTOsRequest.WeeklyAvailabilityDTOs;
+
+namespace ProConnect_Backend.Application.UseCases.WeeklyAvailability.Commands.UpdateWeeklyAvailability;
+
+public record UpdateWeeklyAvailabilityCommand(UpdateWeeklyAvailabilityDto Dto) : IRequest<WeeklyAvailabilityResponseDto>;

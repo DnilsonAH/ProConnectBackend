@@ -10,6 +10,8 @@ using ProConnect_Backend.Domain.DTOsRequest.AuthDtos;
 using ProConnect_Backend.Domain.DTOsRequest.ProfessionCategoryDTOs;
 using ProConnect_Backend.Domain.DTOsRequest.ProfessionDTOs;
 using ProConnect_Backend.Domain.DTOsRequest.SpecializationDTOs;
+using ProConnect_Backend.Domain.DTOsRequest.WeeklyAvailabilityDTOs;
+using ProConnect_Backend.Application.DTOsResponse.WeeklyAvailabilityDTOs;
 using ProConnect_Backend.Domain.Entities;
 
 namespace ProConnect_Backend.Application.Mapping;
@@ -101,5 +103,30 @@ public class AutoMapping : Profile
         CreateMap<ProfileSpecialization, ProfileSpecializationResponseDto>()
             .ForMember(dest => dest.SpecializationName, opt => opt.Ignore()) // Se asigna en el handler
             .ForMember(dest => dest.ProfessionName, opt => opt.Ignore()); // Se asigna en el handler
+
+        // ============================================================
+        // MAPEOS PARA WEEKLY AVAILABILITY
+        // ============================================================
+
+        // CreateWeeklyAvailabilityDto -> WeeklyAvailability
+        CreateMap<CreateWeeklyAvailabilityDto, WeeklyAvailability>()
+            .ForMember(dest => dest.WeeklyAvailabilityId, opt => opt.Ignore())
+            .ForMember(dest => dest.ProfessionalId, opt => opt.Ignore())
+            .ForMember(dest => dest.Professional, opt => opt.Ignore())
+            .ForMember(dest => dest.StartTime, opt => opt.Ignore()) // Parsed in handler
+            .ForMember(dest => dest.EndTime, opt => opt.Ignore()); // Parsed in handler
+
+        // UpdateWeeklyAvailabilityDto -> WeeklyAvailability
+        CreateMap<UpdateWeeklyAvailabilityDto, WeeklyAvailability>()
+            .ForMember(dest => dest.ProfessionalId, opt => opt.Ignore())
+            .ForMember(dest => dest.Professional, opt => opt.Ignore())
+            .ForMember(dest => dest.StartTime, opt => opt.Ignore()) // Parsed in handler
+            .ForMember(dest => dest.EndTime, opt => opt.Ignore()) // Parsed in handler
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+        // WeeklyAvailability -> WeeklyAvailabilityResponseDto
+        CreateMap<WeeklyAvailability, WeeklyAvailabilityResponseDto>()
+            .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime.ToString("HH:mm")))
+            .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime.ToString("HH:mm")));
     }
 }
