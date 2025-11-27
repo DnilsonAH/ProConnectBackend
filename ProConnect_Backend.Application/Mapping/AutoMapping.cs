@@ -1,6 +1,7 @@
 using AutoMapper;
 using ProConnect_Backend.Application.DTOsResponse.AuthDTOs;
 using ProConnect_Backend.Application.DTOsResponse.LoginDTOs;
+using ProConnect_Backend.Application.DTOsResponse.ProfessionalProfileDTOs;
 using ProConnect_Backend.Application.DTOsResponse.UserDTOs;
 using ProConnect_Backend.Application.DTOsResponse.ProfessionCategoryDTOs;
 using ProConnect_Backend.Application.DTOsResponse.ProfessionDTOs;
@@ -128,5 +129,22 @@ public class AutoMapping : Profile
         CreateMap<WeeklyAvailability, WeeklyAvailabilityResponseDto>()
             .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime.ToString("HH:mm")))
             .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime.ToString("HH:mm")));
+        
+        // ============================================================
+        // DTOS PARA PERFIL DE PROFESIONAL ProfessionalProfile
+        // ============================================================
+        
+        CreateMap<ProfessionalProfile, ProfessionalSearchResultDto>()
+            // ProfessionalProfile -> ProfessionalSearchResultDto
+            .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User.FirstName))
+            .ForMember(dest => dest.FirstSurname, opt => opt.MapFrom(src => src.User.FirstSurname))
+            .ForMember(dest => dest.SecondSurname, opt => opt.MapFrom(src => src.User.SecondSurname))
+            .ForMember(dest => dest.PhotoUrl, opt => opt.MapFrom(src => src.User.PhotoUrl))
+            .ForMember(dest => dest.Professions, opt => opt.Ignore());
+
+        // Mapeos auxiliares para listas internas de ProfessionalProfile
+        CreateMap<Specialization, SpecializationResultDto>();
+        
+        
     }
 }
