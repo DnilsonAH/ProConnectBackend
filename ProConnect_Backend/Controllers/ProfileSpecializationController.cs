@@ -1,9 +1,12 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ProConnect_Backend.Application.UseCases.ProfessionalProfile.Queries.GetFilteredProfessionals;
 using ProConnect_Backend.Application.UseCases.ProfileSpecialization.Commands.AssignSpecialization;
 using ProConnect_Backend.Application.UseCases.ProfileSpecialization.Commands.RemoveSpecialization;
 using ProConnect_Backend.Application.UseCases.ProfileSpecialization.Queries.GetProfileSpecializations;
 using ProConnect_Backend.Application.UseCases.ProfileSpecialization.Queries.GetSpecializationProfiles;
+using ProConnect_Backend.Domain.DTOsRequest.ProfessionalProfileDTOs;
 using ProConnect_Backend.Domain.DTOsRequest.ProfileSpecializationDTOs;
 
 namespace ProConnect_Backend.Controllers;
@@ -189,6 +192,39 @@ public class ProfileSpecializationController : ControllerBase
             {
                 success = false,
                 message = "Error interno al obtener los perfiles"
+            });
+        }
+    }
+    // Solo usuarios logueados pueden buscar
+    [Authorize]
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchProfessionals([FromQuery] FilterProfessionalsRequestDto filters)
+    {
+        try
+        {
+            // Validacion de paginación básica
+            if (filters.Page < 1 || filters.PageSize < 1)
+            {
+                return BadRequest(new { success = false, message = "Paginación inválida." });
+            }
+
+            var query = new GetFilteredProfessionalsQuery(filters);
+            var result = await _mediator.Send(query);
+
+            return Ok(new
+            {
+                success = true,
+                message = "Resultados obtenidos exitosamente",
+                data = result
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al buscar profesionales con filtros");
+            return StatusCode(500, new
+            {
+                success = false,
+                message = "Error interno al procesar la búsqueda"
             });
         }
     }
