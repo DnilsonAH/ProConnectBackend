@@ -10,4 +10,7 @@ public interface IProfessionalProfileRepository : IGenericRepository<Professiona
     Task<ProfessionalProfile?> GetProfileWithDetailsAsync(uint profileId);
     Task<IEnumerable<ProfessionalProfile>> GetVerifiedProfilesAsync();
     Task<IEnumerable<ProfessionalProfile>> GetProfilesByAvailabilityAsync(DayOfWeek day);
+    
+    // Filtrado de profesionales por categoría, profesión y especialización | Tupla:(Lista de perfiles, Total de items para paginacion)
+    Task<(IEnumerable<ProfessionalProfile> Items, int TotalCount)> FilterProfilesAsync(uint? categoryId, uint? professionId, uint? specializationId, int page, int pageSize);
 }

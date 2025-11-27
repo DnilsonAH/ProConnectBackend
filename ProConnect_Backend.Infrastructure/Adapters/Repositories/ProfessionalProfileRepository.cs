@@ -59,4 +59,48 @@ public class ProfessionalProfileRepository : GenericRepository<ProfessionalProfi
                 .ThenInclude(ps => ps.Specialization)
             .ToListAsync();
     }
+    
+    // Filtrado de profesionales por categoría, profesión y especialización | Tupla:(Lista de perfiles, Total de items para paginacion)
+    public async Task<(IEnumerable<ProfessionalProfile> Items, int TotalCount)> FilterProfilesAsync(uint? categoryId, uint? professionId, uint? specializationId, int page, int pageSize)
+    {
+        // iniciacion de la consulta
+        var query = _dbContext.ProfessionalProfiles
+            .Include(p => p.User)
+            .Include(p => p.ProfileSpecializations)
+                .ThenInclude(ps => ps.Specialization)
+                    .ThenInclude(s => s.Profession)
+                        .ThenInclude(pr => pr.Category)
+            .AsQueryable();
+
+        // Filtro de Seguridad si el usuario tiene alguna verificación con status "Verified" o "Approved"
+        query = query.Where(p => p.User.Verifications.Any(v => v.Status == "Verified" || v.Status == "Approved"));
+
+        // Filtracion dinamica | If speciality else if profession else if Category
+        if (specializationId.HasValue)
+        {
+            // Si busca por especialidad, el perfil debe tener esa especialidad
+            query = query.Where(p => p.ProfileSpecializations.Any(ps => ps.SpecializationId == specializationId.Value));
+        }
+        else if (professionId.HasValue)
+        {
+            // Si busca por profesión, el perfil debe tener alguna especialidad de esa profesión
+            query = query.Where(p => p.ProfileSpecializations.Any(ps => ps.Specialization.ProfessionId == professionId.Value));
+        }
+        else if (categoryId.HasValue)
+        {
+            // Si busca por categoría, el perfil debe tener alguna especialidad -> profesión -> categoría
+            query = query.Where(p => p.ProfileSpecializations.Any(ps => ps.Specialization.Profession.CategoryId == categoryId.Value));
+        }
+
+        //Conteo total para paginación, antes de cortar la página
+        var totalCount = await query.CountAsync();
+
+        //Paginación, Skip y Take se traducen a LIMIT y OFFSET en SQL
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
 }
