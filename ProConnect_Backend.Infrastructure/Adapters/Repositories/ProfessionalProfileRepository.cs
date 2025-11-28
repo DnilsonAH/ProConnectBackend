@@ -73,7 +73,7 @@ public class ProfessionalProfileRepository : GenericRepository<ProfessionalProfi
             .AsQueryable();
 
         // Filtro de Seguridad si el usuario tiene alguna verificación con status "Verified" o "Approved"
-        query = query.Where(p => p.User.Verifications.Any(v => v.Status == "Verified" || v.Status == "Approved"));
+        // query = query.Where(p => p.User.Verifications.Any(v => v.Status == "Verified" || v.Status == "Approved"));
 
         // Filtracion dinamica | If speciality else if profession else if Category
         if (specializationId.HasValue)
