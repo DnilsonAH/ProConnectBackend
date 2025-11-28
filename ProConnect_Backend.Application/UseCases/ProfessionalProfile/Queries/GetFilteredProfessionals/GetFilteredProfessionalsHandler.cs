@@ -9,23 +9,26 @@ public class GetFilteredProfessionalsHandler : IRequestHandler<GetFilteredProfes
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly ILogger<GetFilteredProfessionalsHandler> _logger;
 
-    public GetFilteredProfessionalsHandler(IUnitOfWork unitOfWork, IMapper mapper)
+    public GetFilteredProfessionalsHandler(IUnitOfWork unitOfWork, IMapper mapper, ILogger<GetFilteredProfessionalsHandler> logger)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<PagedProfessionalResponseDto> Handle(GetFilteredProfessionalsQuery request, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Iniciando búsqueda de profesionales con filtros");
         var dto = request.FilterDto;
 
         //Obtener datos de la DB
         var (profiles, totalCount) = await _unitOfWork.ProfessionalProfileRepository.FilterProfilesAsync(
-            dto.CategoryId, 
-            dto.ProfessionId, 
-            dto.SpecializationId, 
-            dto.Page, 
+            dto.CategoryId,
+            dto.ProfessionId,
+            dto.SpecializationId,
+            dto.Page,
             dto.PageSize
         );
 
@@ -60,7 +63,7 @@ public class GetFilteredProfessionalsHandler : IRequestHandler<GetFilteredProfes
             else
             {
                 var specsQuery = profile.ProfileSpecializations.AsEnumerable();
-                
+
                 if (dto.CategoryId.HasValue)
                 {
                     specsQuery = specsQuery.Where(ps => ps.Specialization.Profession.CategoryId == dto.CategoryId.Value);
