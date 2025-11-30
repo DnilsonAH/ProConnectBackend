@@ -1,0 +1,6 @@
+using MediatR;
+using ProConnect_Backend.Application.DTOsResponse.ProfessionalProfileDTOs;
+
+namespace ProConnect_Backend.Application.UseCases.ProfessionalProfile.Queries.GetAllProfessionalProfiles;
+
+public record GetAllProfessionalProfilesQuery : IRequest<IEnumerable<ProfessionalProfileResponseDto>>;

@@ -1,0 +1,6 @@
+using MediatR;
+using ProConnect_Backend.Application.DTOsResponse.WeeklyAvailabilityDTOs;
+
+namespace ProConnect_Backend.Application.UseCases.WeeklyAvailability.Queries.GetWeeklyAvailabilityByProfessional;
+
+public record GetWeeklyAvailabilityByProfessionalQuery(uint ProfessionalId) : IRequest<IEnumerable<WeeklyAvailabilityResponseDto>>;

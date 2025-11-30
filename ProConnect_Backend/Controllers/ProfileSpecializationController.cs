@@ -1,9 +1,11 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProConnect_Backend.Application.UseCases.ProfileSpecialization.Commands.AssignSpecialization;
 using ProConnect_Backend.Application.UseCases.ProfileSpecialization.Commands.RemoveSpecialization;
 using ProConnect_Backend.Application.UseCases.ProfileSpecialization.Queries.GetProfileSpecializations;
 using ProConnect_Backend.Application.UseCases.ProfileSpecialization.Queries.GetSpecializationProfiles;
+using ProConnect_Backend.Domain.DTOsRequest.ProfessionalProfileDTOs;
 using ProConnect_Backend.Domain.DTOsRequest.ProfileSpecializationDTOs;
 
 namespace ProConnect_Backend.Controllers;
@@ -193,3 +195,4 @@ public class ProfileSpecializationController : ControllerBase
         }
     }
 }
+
