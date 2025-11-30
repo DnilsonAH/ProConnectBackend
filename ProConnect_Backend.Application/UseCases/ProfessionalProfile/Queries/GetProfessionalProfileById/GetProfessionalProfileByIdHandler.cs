@@ -18,7 +18,7 @@ public class GetProfessionalProfileByIdHandler : IRequestHandler<GetProfessional
 
     public async Task<ProfessionalProfileResponseDto?> Handle(GetProfessionalProfileByIdQuery request, CancellationToken cancellationToken)
     {
-        var entity = await _unitOfWork.ProfessionalProfileRepository.GetByIdAsync(request.ProfileId);
+        var entity = await _unitOfWork.ProfessionalProfileRepository.GetProfileWithDetailsAsync(request.ProfileId);
         return _mapper.Map<ProfessionalProfileResponseDto>(entity);
     }
 }

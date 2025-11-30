@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using ProConnect_Backend.Application.DTOsResponse.ProfessionalProfileDTOs;
 using ProConnect_Backend.Domain.Ports;
+using Microsoft.Extensions.Logging;
 
 namespace ProConnect_Backend.Application.UseCases.ProfessionalProfile.Queries.GetFilteredProfessionals;
 

@@ -1,9 +1,11 @@
 using AutoMapper;
 using MediatR;
 using ProConnect_Backend.Application.DTOsResponse.ProfessionalProfileDTOs;
-using ProConnect_Backend.Domain.Entities;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 using ProConnect_Backend.Domain.Ports;
 using System.Security.Claims;
+using DomainEntities = ProConnect_Backend.Domain.Entities;
 
 namespace ProConnect_Backend.Application.UseCases.ProfessionalProfile.Commands.CreateProfessionalProfile;
 
@@ -45,7 +47,7 @@ public class CreateProfessionalProfileHandler : IRequestHandler<CreateProfession
         }
 
         // 3. Mapear DTO a Entidad
-        var entity = _mapper.Map<ProfessionalProfile>(request.Dto);
+        var entity = _mapper.Map<DomainEntities.ProfessionalProfile>(request.Dto);
         entity.UserId = userId;
 
         // 4. Manejar Especializaciones
@@ -60,7 +62,7 @@ public class CreateProfessionalProfileHandler : IRequestHandler<CreateProfession
                     throw new KeyNotFoundException($"Especialización con ID {specId} no encontrada");
                 }
 
-                entity.ProfileSpecializations.Add(new ProfileSpecialization
+                entity.ProfileSpecializations.Add(new DomainEntities.ProfileSpecialization
                 {
                     SpecializationId = specId
                 });
@@ -69,7 +71,7 @@ public class CreateProfessionalProfileHandler : IRequestHandler<CreateProfession
 
         // 5. Guardar en BD
         await _unitOfWork.ProfessionalProfileRepository.AddAsync(entity);
-        await _unitOfWork.SaveChangesAsync(); // Changed from SaveAsync() to SaveChangesAsync() to match existing pattern
+        await _unitOfWork.SaveChangesAsync();
 
         _logger.LogInformation("Perfil profesional creado exitosamente con ID: {ProfileId}", entity.ProfileId);
 

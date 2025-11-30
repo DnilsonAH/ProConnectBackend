@@ -1,4 +1,6 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 using ProConnect_Backend.Domain.Ports;
 using System.Security.Claims;
 
@@ -11,7 +13,7 @@ public class DeleteProfessionalProfileHandler : IRequestHandler<DeleteProfession
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public DeleteProfessionalProfileHandler(
-        IUnitOfWork unitOfWork, 
+        IUnitOfWork unitOfWork,
         ILogger<DeleteProfessionalProfileHandler> logger,
         IHttpContextAccessor httpContextAccessor)
     {
@@ -32,7 +34,7 @@ public class DeleteProfessionalProfileHandler : IRequestHandler<DeleteProfession
 
         var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier);
         var userRoleClaim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role);
-        
+
         if (userIdClaim == null || !uint.TryParse(userIdClaim.Value, out uint userId))
         {
             throw new UnauthorizedAccessException("Usuario no autenticado");
