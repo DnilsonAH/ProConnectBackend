@@ -236,7 +236,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+/*var now = DateTime.UtcNow;
+Console.WriteLine($"Hora del servidor {now}"); */
 // IMPORTANTE: UseCors debe estar ANTES de UseAuthentication y UseAuthorization
 app.UseCors("AllowFrontend");
 

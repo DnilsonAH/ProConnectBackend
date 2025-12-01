@@ -60,6 +60,7 @@ public static class ServiceRegistrationExtensions
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IVideoCallService, ZegoCloudService>();
+        services.AddScoped<ITimeZoneConverter, TimeZoneConverter>();
         
         // MediatR está configurado en ApplicationServicesExtensions
         // Los handlers se registran automáticamente por MediatR
