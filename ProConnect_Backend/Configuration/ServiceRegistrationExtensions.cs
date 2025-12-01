@@ -59,6 +59,7 @@ public static class ServiceRegistrationExtensions
         // 3. Registro de Servicios de Infraestructura (JWT, Hasheo de contraseñas)
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IVideoCallService, ZegoCloudService>();
         
         // MediatR está configurado en ApplicationServicesExtensions
         // Los handlers se registran automáticamente por MediatR
