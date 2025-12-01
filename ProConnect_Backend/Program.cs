@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
+// ==============================================================================
+// 0. CONFIGURACIÓN DE ENTORNO LOCAL
+// ==============================================================================
+
 // Intentar cargar .env solo en desarrollo local (no en Docker/Fly.io)
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
 var isRunningInContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false;
@@ -44,41 +48,58 @@ else
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Validar y cargar configuraciones con variables de entorno
+// ==============================================================================
+// 1. CARGA DE VARIABLES DE ENTORNO (Lectura cruda)
+// ==============================================================================
+
+// Base de Datos
 var dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
 var dbPort = Environment.GetEnvironmentVariable("DB_PORT");
 var dbDatabase = Environment.GetEnvironmentVariable("DB_DATABASE");
 var dbUser = Environment.GetEnvironmentVariable("DB_USER");
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
-// Configuración JWT
+// JWT
 var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
 var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
 var jwtExpirationHours = Environment.GetEnvironmentVariable("JWT_EXPIRATION_HOURS");
 
-// Validar que las variables críticas estén configuradas
+// ZegoCloud (CORRECCIÓN AQUÍ: Usamos SERVER_SECRET, no APP_SIGN)
+var zegoAppId = Environment.GetEnvironmentVariable("ZEGOCLOUD_APP_ID");
+var zegoServerSecret = Environment.GetEnvironmentVariable("ZEGOCLOUD_SERVER_SECRET"); 
+
+// ==============================================================================
+// 2. VALIDACIÓN DE CONFIGURACIÓN CRÍTICA
+// ==============================================================================
+
 if (string.IsNullOrEmpty(dbServer) || string.IsNullOrEmpty(dbDatabase) || 
     string.IsNullOrEmpty(dbUser) || string.IsNullOrEmpty(dbPassword) ||
     string.IsNullOrEmpty(jwtSecretKey) || string.IsNullOrEmpty(jwtIssuer) || 
-    string.IsNullOrEmpty(jwtAudience))
+    string.IsNullOrEmpty(jwtAudience) ||
+    string.IsNullOrEmpty(zegoAppId) || string.IsNullOrEmpty(zegoServerSecret)) 
 {
     Console.WriteLine("❌ ERROR: Variables de entorno no configuradas correctamente");
+    
+    // Log de diagnóstico
     Console.WriteLine("Base de datos:");
-    Console.WriteLine($"   DB_SERVER: {(string.IsNullOrEmpty(dbServer) ? "❌ NO CONFIGURADO" : "✅")}");
-    Console.WriteLine($"   DB_PORT: {(string.IsNullOrEmpty(dbPort) ? "❌ NO CONFIGURADO (usando 3306)" : "✅")}");
-    Console.WriteLine($"   DB_DATABASE: {(string.IsNullOrEmpty(dbDatabase) ? "❌ NO CONFIGURADO" : "✅")}");
-    Console.WriteLine($"   DB_USER: {(string.IsNullOrEmpty(dbUser) ? "❌ NO CONFIGURADO" : "✅")}");
-    Console.WriteLine($"   DB_PASSWORD: {(string.IsNullOrEmpty(dbPassword) ? "❌ NO CONFIGURADO" : "✅")}");
+    Console.WriteLine($"   DB_SERVER: {(string.IsNullOrEmpty(dbServer) ? "❌" : "✅")}");
+    Console.WriteLine($"   DB_DATABASE: {(string.IsNullOrEmpty(dbDatabase) ? "❌" : "✅")}");
     Console.WriteLine("JWT:");
-    Console.WriteLine($"   JWT_SECRET_KEY: {(string.IsNullOrEmpty(jwtSecretKey) ? "❌ NO CONFIGURADO" : "✅")}");
-    Console.WriteLine($"   JWT_ISSUER: {(string.IsNullOrEmpty(jwtIssuer) ? "❌ NO CONFIGURADO" : "✅")}");
-    Console.WriteLine($"   JWT_AUDIENCE: {(string.IsNullOrEmpty(jwtAudience) ? "❌ NO CONFIGURADO" : "✅")}");
-    Console.WriteLine($"   JWT_EXPIRATION_HOURS: {(string.IsNullOrEmpty(jwtExpirationHours) ? "⚠️ NO CONFIGURADO (usando default)" : "✅")}");
+    Console.WriteLine($"   JWT_SECRET_KEY: {(string.IsNullOrEmpty(jwtSecretKey) ? "❌" : "✅")}");
+    Console.WriteLine("ZegoCloud:");
+    Console.WriteLine($"   ZEGOCLOUD_APP_ID: {(string.IsNullOrEmpty(zegoAppId) ? "❌ NO CONFIGURADO" : "✅")}");
+    // Validamos ServerSecret en lugar de AppSign
+    Console.WriteLine($"   ZEGOCLOUD_SERVER_SECRET: {(string.IsNullOrEmpty(zegoServerSecret) ? "❌ NO CONFIGURADO" : "✅")}");
+    
     throw new InvalidOperationException("Variables de entorno requeridas no están configuradas");
 }
 
-// Sobrescribir configuraciones con variables de entorno
+// ==============================================================================
+// 3. MAPEO DE ENTORNO A CONFIGURACIÓN DE .NET
+// ==============================================================================
+
+// Sobrescribir Connection Strings
 var fullConnectionString = $"Server={dbServer};" +
     $"Port={dbPort ?? "3306"};" +
     $"Database={dbDatabase};" +
@@ -87,25 +108,25 @@ var fullConnectionString = $"Server={dbServer};" +
 
 builder.Configuration["ConnectionStrings:DefaultConnection"] = fullConnectionString;
 
-// Log para verificar la cadena de conexión (ofuscada)
-Console.WriteLine("🔗 Cadena de conexión generada:");
-Console.WriteLine($"   {fullConnectionString.Replace(dbPassword, "***PASSWORD***")}");
-Console.WriteLine();
-
+// Sobrescribir Configuración JWT
 builder.Configuration["JwtSettings:SecretKey"] = jwtSecretKey;
 builder.Configuration["JwtSettings:Issuer"] = jwtIssuer;
 builder.Configuration["JwtSettings:Audience"] = jwtAudience;
 builder.Configuration["JwtSettings:ExpirationHours"] = jwtExpirationHours ?? "24";
 
-// Log de configuración cargada
+// Sobrescribir Configuración ZegoCloud (Aquí ocurre la magia del puente)
+// El servicio ZegoCloudService busca "ZegoCloud:AppId", así que se lo damos aquí.
+builder.Configuration["ZegoCloud:AppId"] = zegoAppId;
+// El servicio busca "ZegoCloud:ServerSecret", le asignamos tu variable ZEGOCLOUD_SERVER_SECRET
+builder.Configuration["ZegoCloud:ServerSecret"] = zegoServerSecret;
+
+// Log de configuración cargada (solo info segura)
 Console.WriteLine("⚙️ Configuración cargada:");
-Console.WriteLine($"   - Base de datos: {dbDatabase} en {dbServer}:{dbPort ?? "3306"}");
-Console.WriteLine($"   - Usuario DB: {dbUser}");
-Console.WriteLine($"   - Password configurado: {(!string.IsNullOrEmpty(dbPassword) ? $"✅ (longitud: {dbPassword.Length} caracteres)" : "❌ NO CONFIGURADO")}");
+Console.WriteLine($"   - Base de datos: {dbDatabase} en {dbServer}");
 Console.WriteLine($"   - JWT Issuer: {jwtIssuer}");
-Console.WriteLine($"   - JWT Audience: {jwtAudience}");
-Console.WriteLine($"   - JWT SecretKey configurado: ✅ (longitud: {jwtSecretKey?.Length ?? 0} caracteres)");
-Console.WriteLine($"   - JWT Expiration: {jwtExpirationHours ?? "24"} horas");
+Console.WriteLine($"   - Zego AppID: {zegoAppId}"); 
+// Mostramos longitud para verificar que cargó algo, pero no el secreto
+Console.WriteLine($"   - Zego Secret: ✅ (Longitud: {zegoServerSecret?.Length ?? 0} caracteres)");
 Console.WriteLine();
 
 
@@ -126,24 +147,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Registramos nuestros servicios de capas (Infraestructura, Aplicación, etc.)
 builder.Services.AddUserControllerServices(builder.Configuration);
 builder.Services.AddApplicationServices();
-
-
 
 /* +---------------------------------------------------------------------------------------------------------+
    |                                        Construcción de la aplicación                                    |
    +---------------------------------------------------------------------------------------------------------+*/
-// Necesario para acceder al HttpContext en los servicios
 
 // Necesario para acceder al HttpContext en los servicios
 builder.Services.AddHttpContextAccessor();
+
 // 3. Configurar Swagger/OpenAPI para que soporte JWT
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "ArchitectureLAB10 API",
+        Title = "ProConnect API",
         Version = "v1"
     });
 
@@ -154,7 +174,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Autorización JWT: Bearer)"
+        Description = "Autorización JWT: Bearer {token}"
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -173,11 +193,9 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-
-
 var app = builder.Build(); // Construir la aplicación
 
-// Verificar conexión a la base de datos
+// Verificar conexión a la base de datos al iniciar
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -188,10 +206,8 @@ using (var scope = app.Services.CreateScope())
         var dbContext = services.GetRequiredService<ProConnect_Backend.Infrastructure.Data.ProConnectDbContext>();
         
         logger.LogInformation("🔄 Intentando conectar a la base de datos...");
-        logger.LogInformation("📍 Servidor: {Server}", Environment.GetEnvironmentVariable("DB_SERVER"));
-        logger.LogInformation("📊 Base de datos: {Database}", Environment.GetEnvironmentVariable("DB_DATABASE"));
         
-        // Obtener la cadena de conexión actual para debug
+        // Obtener la cadena de conexión actual para debug (sin contraseña)
         var connectionString = dbContext.Database.GetDbConnection().ConnectionString;
         logger.LogInformation("🔗 Cadena de conexión (sin password): {ConnectionString}", 
             connectionString?.Replace(dbPassword ?? "", "***"));
@@ -208,38 +224,10 @@ using (var scope = app.Services.CreateScope())
             logger.LogWarning("⚠️ No se pudo verificar la conexión a la base de datos");
         }
     }
-    catch (MySqlConnector.MySqlException mysqlEx)
-    {
-        logger.LogError("❌ Error específico de MySQL:");
-        logger.LogError("   - Código de error: {ErrorCode}", mysqlEx.ErrorCode);
-        logger.LogError("   - Número de error: {Number}", mysqlEx.Number);
-        logger.LogError("   - Mensaje: {Message}", mysqlEx.Message);
-        logger.LogError("   - SqlState: {SqlState}", mysqlEx.SqlState);
-        
-        if (mysqlEx.InnerException != null)
-        {
-            logger.LogError("   - Error interno: {InnerMessage}", mysqlEx.InnerException.Message);
-        }
-        
-        logger.LogError("💡 Verifica:");
-        logger.LogError("   1. La IP del servidor es accesible desde esta máquina");
-        logger.LogError("   2. Las credenciales de base de datos son correctas");
-        logger.LogError("   3. El puerto está abierto en el firewall");
-    }
     catch (Exception ex)
     {
         logger.LogError(ex, "❌ Error al conectar con la base de datos");
-        logger.LogError("💡 Verifica las credenciales en el archivo .env");
-        logger.LogError("🔍 Tipo de error: {ExceptionType}", ex.GetType().Name);
-        logger.LogError("🔍 Detalles del error: {Message}", ex.Message);
-        
-        if (ex.InnerException != null)
-        {
-            logger.LogError("🔍 Error interno: {InnerMessage}", ex.InnerException.Message);
-        }
-        
-        // No lanzar la excepción para que la aplicación pueda iniciar y mostrar el error en Swagger
-        // throw; // Descomenta esta línea si quieres que la aplicación no inicie sin conexión DB
+        // throw; // Descomentar en producción estricta
     }
 }
 
