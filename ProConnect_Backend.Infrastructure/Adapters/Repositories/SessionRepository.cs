@@ -11,6 +11,27 @@ public class SessionRepository : GenericRepository<Session>, ISessionRepository
     {
     }
 
+    /// <summary>
+    /// Devuelve una lista de sesiones para un cliente específico.
+    /// </summary>
+    /// <returns>
+    /// Una lista de sesiones con la siguiente estructura:
+    /// <code>
+    /// [
+    ///   {
+    ///     "sessionId": 1,
+    ///     "startDate": "2024-05-20T10:00:00Z",
+    ///     "endDate": "2024-05-20T11:00:00Z",
+    ///     "professionalId": 2,
+    ///     "clientId": 1,
+    ///     "meetUrl": "https://meet.example.com/session1",
+    ///     "status": "Completed",
+    ///     "professional": { "userId": 2, "firstName": "Professional", "firstSurname": "User" /* ... */ },
+    ///     "scheduleds": [ { "availabilityId": 1, "startDate": "2024-05-20T10:00:00Z", "endDate": "2024-05-20T11:00:00Z" } ]
+    ///   }
+    /// ]
+    /// </code>
+    /// </returns>
     public async Task<IEnumerable<Session>> GetSessionsByClientAsync(uint clientId)
     {
         return await _dbContext.Sessions
@@ -21,6 +42,27 @@ public class SessionRepository : GenericRepository<Session>, ISessionRepository
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Devuelve una lista de sesiones para un profesional específico.
+    /// </summary>
+    /// <returns>
+    /// Una lista de sesiones con la siguiente estructura:
+    /// <code>
+    /// [
+    ///   {
+    ///     "sessionId": 1,
+    ///     "startDate": "2024-05-20T10:00:00Z",
+    ///     "endDate": "2024-05-20T11:00:00Z",
+    ///     "professionalId": 2,
+    ///     "clientId": 1,
+    ///     "meetUrl": "https://meet.example.com/session1",
+    ///     "status": "Completed",
+    ///     "client": { "userId": 1, "firstName": "Client", "firstSurname": "User" /* ... */ },
+    ///     "scheduleds": [ { "availabilityId": 1, "startDate": "2024-05-20T10:00:00Z", "endDate": "2024-05-20T11:00:00Z" } ]
+    ///   }
+    /// ]
+    /// </code>
+    /// </returns>
     public async Task<IEnumerable<Session>> GetSessionsByProfessionalAsync(uint professionalId)
     {
         return await _dbContext.Sessions
@@ -31,6 +73,27 @@ public class SessionRepository : GenericRepository<Session>, ISessionRepository
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Devuelve una lista de sesiones con un estado específico.
+    /// </summary>
+    /// <returns>
+    /// Una lista de sesiones con la siguiente estructura:
+    /// <code>
+    /// [
+    ///   {
+    ///     "sessionId": 1,
+    ///     "startDate": "2024-05-20T10:00:00Z",
+    ///     "endDate": "2024-05-20T11:00:00Z",
+    ///     "professionalId": 2,
+    ///     "clientId": 1,
+    ///     "meetUrl": "https://meet.example.com/session1",
+    ///     "status": "Scheduled",
+    ///     "client": { "userId": 1, "firstName": "Client", "firstSurname": "User" /* ... */ },
+    ///     "professional": { "userId": 2, "firstName": "Professional", "firstSurname": "User" /* ... */ }
+    ///   }
+    /// ]
+    /// </code>
+    /// </returns>
     public async Task<IEnumerable<Session>> GetSessionsByStatusAsync(string status)
     {
         return await _dbContext.Sessions
@@ -40,6 +103,28 @@ public class SessionRepository : GenericRepository<Session>, ISessionRepository
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Devuelve una sesión con todos sus detalles.
+    /// </summary>
+    /// <returns>
+    /// Un objeto de sesión con la siguiente estructura, o null si no se encuentra:
+    /// <code>
+    /// {
+    ///   "sessionId": 1,
+    ///   "startDate": "2024-05-20T10:00:00Z",
+    ///   "endDate": "2024-05-20T11:00:00Z",
+    ///   "professionalId": 2,
+    ///   "clientId": 1,
+    ///   "meetUrl": "https://meet.example.com/session1",
+    ///   "status": "Completed",
+    ///   "client": { "userId": 1, "firstName": "Client", "firstSurname": "User" /* ... */ },
+    ///   "professional": { "userId": 2, "firstName": "Professional", "firstSurname": "User" /* ... */ },
+    ///   "scheduleds": [ { "availabilityId": 1, "startDate": "2024-05-20T10:00:00Z", "endDate": "2024-05-20T11:00:00Z" } ],
+    ///   "payments": [ { "paymentId": 1, "totalAmount": 100.00, "status": "Paid", "paymentDate": "2024-05-19T12:00:00Z" } ],
+    ///   "reviews": [ { "reviewId": 1, "rating": 5, "comment": "Excellent session!", "reviewDate": "2024-05-21T14:00:00Z" } ]
+    /// }
+    /// </code>
+    /// </returns>
     public async Task<Session?> GetSessionWithDetailsAsync(uint sessionId)
     {
         return await _dbContext.Sessions
@@ -51,6 +136,28 @@ public class SessionRepository : GenericRepository<Session>, ISessionRepository
             .FirstOrDefaultAsync(s => s.SessionId == sessionId);
     }
 
+    /// <summary>
+    /// Devuelve una lista de las próximas sesiones para un usuario específico.
+    /// </summary>
+    /// <returns>
+    /// Una lista de sesiones con la siguiente estructura:
+    /// <code>
+    /// [
+    ///   {
+    ///     "sessionId": 1,
+    ///     "startDate": "2024-05-20T10:00:00Z",
+    ///     "endDate": "2024-05-20T11:00:00Z",
+    ///     "professionalId": 2,
+    ///     "clientId": 1,
+    ///     "meetUrl": "https://meet.example.com/session1",
+    ///     "status": "Scheduled",
+    ///     "client": { "userId": 1, "firstName": "Client", "firstSurname": "User" /* ... */ },
+    ///     "professional": { "userId": 2, "firstName": "Professional", "firstSurname": "User" /* ... */ },
+    ///     "scheduleds": [ { "availabilityId": 1, "startDate": "2024-05-20T10:00:00Z", "endDate": "2024-05-20T11:00:00Z" } ]
+    ///   }
+    /// ]
+    /// </code>
+    /// </returns>
     public async Task<IEnumerable<Session>> GetUpcomingSessionsAsync(uint userId)
     {
         var now = DateTime.UtcNow;
@@ -63,6 +170,29 @@ public class SessionRepository : GenericRepository<Session>, ISessionRepository
             .ToListAsync();
     }
 
+    
+    /// <summary>
+    /// Devuelve una lista de sesiones pasadas para un usuario específico.
+    /// </summary>
+    /// <returns>
+    /// Una lista de sesiones con la siguiente estructura:
+    /// <code>
+    /// [
+    ///   {
+    ///     "sessionId": 1,
+    ///     "startDate": "2024-05-20T10:00:00Z",
+    ///     "endDate": "2024-05-20T11:00:00Z",
+    ///     "professionalId": 2,
+    ///     "clientId": 1,
+    ///     "meetUrl": "https://meet.example.com/session1",
+    ///     "status": "Completed",
+    ///     "client": { "userId": 1, "firstName": "Client", "firstSurname": "User" /* ... */ },
+    ///     "professional": { "userId": 2, "firstName": "Professional", "firstSurname": "User" /* ... */ },
+    ///     "scheduleds": [ { "availabilityId": 1, "startDate": "2024-05-20T10:00:00Z", "endDate": "2024-05-20T11:00:00Z" } ]
+    ///   }
+    /// ]
+    /// </code>
+    /// </returns>
     public async Task<IEnumerable<Session>> GetPastSessionsAsync(uint userId)
     {
         var now = DateTime.UtcNow;
