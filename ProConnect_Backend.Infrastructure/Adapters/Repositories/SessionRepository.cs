@@ -1,14 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using ProConnect_Backend.Domain.Entities;
 using ProConnect_Backend.Domain.Ports.IRepositories;
+using ProConnect_Backend.Domain.Ports.IServices;
 using ProConnect_Backend.Infrastructure.Data;
 
 namespace ProConnect_Backend.Infrastructure.Adapters.Repositories;
 
 public class SessionRepository : GenericRepository<Session>, ISessionRepository
 {
-    public SessionRepository(ProConnectDbContext dbContext) : base(dbContext)
+    private readonly ITimeZoneConverter _timeZoneConverter;
+
+    public SessionRepository(ProConnectDbContext dbContext, ITimeZoneConverter timeZoneConverter) : base(dbContext)
     {
+        _timeZoneConverter = timeZoneConverter;
     }
 
     /// <summary>
@@ -160,10 +164,10 @@ public class SessionRepository : GenericRepository<Session>, ISessionRepository
     /// </returns>
     public async Task<IEnumerable<Session>> GetUpcomingSessionsAsync(uint userId)
     {
-        var now = DateTime.UtcNow;
+        var now = _timeZoneConverter.GetLocalTimeInColombiaPeru().Date;
         return await _dbContext.Sessions
-            .Where(s => (s.ClientId == userId || s.ProfessionalId == userId) 
-                     && s.Scheduleds.Any(sch => sch.StartDate > now))
+            .Where(s => (s.ClientId == userId || s.ProfessionalId == userId)
+                     && s.StartDate.Date >= now)
             .Include(s => s.Client)
             .Include(s => s.Professional)
             .Include(s => s.Scheduleds)
@@ -195,13 +199,21 @@ public class SessionRepository : GenericRepository<Session>, ISessionRepository
     /// </returns>
     public async Task<IEnumerable<Session>> GetPastSessionsAsync(uint userId)
     {
-        var now = DateTime.UtcNow;
+        var now = _timeZoneConverter.GetLocalTimeInColombiaPeru();
         return await _dbContext.Sessions
             .Where(s => (s.ClientId == userId || s.ProfessionalId == userId) 
-                     && s.Scheduleds.Any(sch => sch.StartDate < now))
+                     && s.StartDate < now)
             .Include(s => s.Client)
             .Include(s => s.Professional)
             .Include(s => s.Scheduleds)
+            .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Session>> GetAllWithDetailsAsync()
+    {
+        return await _dbContext.Sessions
+            .Include(s => s.Client)
+            .Include(s => s.Professional)
             .ToListAsync();
     }
 }

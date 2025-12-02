@@ -11,4 +11,5 @@ public interface ISessionRepository : IGenericRepository<Session>
     Task<Session?> GetSessionWithDetailsAsync(uint sessionId);
     Task<IEnumerable<Session>> GetUpcomingSessionsAsync(uint userId);
     Task<IEnumerable<Session>> GetPastSessionsAsync(uint userId);
+    Task<IEnumerable<Session>> GetAllWithDetailsAsync();
 }
