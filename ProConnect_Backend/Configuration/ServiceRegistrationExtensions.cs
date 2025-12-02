@@ -27,13 +27,19 @@ public static class ServiceRegistrationExtensions
         Console.WriteLine($"   💡 Usando credenciales de base de datos estándar");
         
         // 2. Configuración del DbContext con MySQL
+        // Agregar timeout más largo para conexiones remotas
+        var connectionStringWithTimeout = connectionString.Contains("ConnectionTimeout") 
+            ? connectionString 
+            : connectionString + ";ConnectionTimeout=120;DefaultCommandTimeout=120;";
+        
         services.AddDbContext<ProConnectDbContext>(options =>
-            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
+            options.UseMySql(connectionStringWithTimeout, ServerVersion.AutoDetect(connectionStringWithTimeout),
                 mySqlOptions => {
                     mySqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 5,
                         maxRetryDelay: TimeSpan.FromSeconds(10),
                         errorNumbersToAdd: null);
+                    mySqlOptions.CommandTimeout(120); // 2 minutos de timeout
                 })
         );
         

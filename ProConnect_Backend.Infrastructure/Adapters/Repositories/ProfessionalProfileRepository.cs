@@ -103,4 +103,26 @@ public class ProfessionalProfileRepository : GenericRepository<ProfessionalProfi
 
         return (items, totalCount);
     }
+
+    // Sobreescribir GetAllAsync para incluir relaciones
+    public new async Task<IEnumerable<ProfessionalProfile>> GetAllAsync()
+    {
+        return await _dbContext.ProfessionalProfiles
+            .Include(p => p.User)
+            .Include(p => p.ProfileSpecializations)
+                .ThenInclude(ps => ps.Specialization)
+                    .ThenInclude(s => s.Profession)
+            .ToListAsync();
+    }
+
+    // Sobreescribir GetByIdAsync para incluir relaciones
+    public new async Task<ProfessionalProfile?> GetByIdAsync(uint id)
+    {
+        return await _dbContext.ProfessionalProfiles
+            .Include(p => p.User)
+            .Include(p => p.ProfileSpecializations)
+                .ThenInclude(ps => ps.Specialization)
+                    .ThenInclude(s => s.Profession)
+            .FirstOrDefaultAsync(p => p.ProfileId == id);
+    }
 }

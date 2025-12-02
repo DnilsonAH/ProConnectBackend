@@ -135,10 +135,27 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:5200","https://proconnectnext.fly.dev")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); // Permite enviar cookies y autenticación
+        // En desarrollo, permitir cualquier origen de localhost
+        if (builder.Environment.IsDevelopment())
+        {
+            policy.SetIsOriginAllowed(origin => 
+                {
+                    if (string.IsNullOrWhiteSpace(origin)) return false;
+                    var uri = new Uri(origin);
+                    return uri.Host == "localhost" || uri.Host == "127.0.0.1";
+                })
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }
+        else
+        {
+            // En producción, solo orígenes específicos
+            policy.WithOrigins("https://proconnectnext.fly.dev")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
     });
 });
 
