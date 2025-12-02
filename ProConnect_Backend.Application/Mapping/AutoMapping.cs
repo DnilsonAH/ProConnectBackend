@@ -7,6 +7,7 @@ using ProConnect_Backend.Application.DTOsResponse.ProfessionCategoryDTOs;
 using ProConnect_Backend.Application.DTOsResponse.ProfessionDTOs;
 using ProConnect_Backend.Application.DTOsResponse.SpecializationDTOs;
 using ProConnect_Backend.Application.DTOsResponse.ProfileSpecializationDTOs;
+using ProConnect_Backend.Application.DTOsResponse.SessionDTOs;
 using ProConnect_Backend.Domain.DTOsRequest.AuthDtos;
 using ProConnect_Backend.Domain.DTOsRequest.ProfessionCategoryDTOs;
 using ProConnect_Backend.Domain.DTOsRequest.ProfessionDTOs;
@@ -15,6 +16,7 @@ using ProConnect_Backend.Domain.DTOsRequest.WeeklyAvailabilityDTOs;
 using ProConnect_Backend.Application.DTOsResponse.WeeklyAvailabilityDTOs;
 using ProConnect_Backend.Domain.Entities;
 using ProConnect_Backend.Domain.DTOsRequest.ProfessionalProfileDTOs;
+using ProConnect_Backend.Domain.DTOsRequest.SessionDTOs;
 
 namespace ProConnect_Backend.Application.Mapping;
 
@@ -160,5 +162,17 @@ public class AutoMapping : Profile
         // ProfessionalProfile -> ProfessionalProfileResponseDto
         CreateMap<ProfessionalProfile, ProfessionalProfileResponseDto>()
             .ForMember(dest => dest.Specializations, opt => opt.MapFrom(src => src.ProfileSpecializations.Select(ps => ps.Specialization)));
+            
+        // ============================================================
+        // MAPEOS PARA SESSION
+        // ============================================================
+        CreateMap<CreateSessionDto, Session>();
+        CreateMap<UpdateSessionDto, Session>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+        CreateMap<Session, SessionResponseDto>()
+            .ForMember(dest => dest.Client, opt => opt.MapFrom(src => src.Client))
+            .ForMember(dest => dest.Professional, opt => opt.MapFrom(src => src.Professional));
+
+        CreateMap<User, UserInSessionResponseDto>();
     }
 }
