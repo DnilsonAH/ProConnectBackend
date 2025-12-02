@@ -161,7 +161,38 @@ public class AutoMapping : Profile
 
         // ProfessionalProfile -> ProfessionalProfileResponseDto
         CreateMap<ProfessionalProfile, ProfessionalProfileResponseDto>()
-            .ForMember(dest => dest.Specializations, opt => opt.MapFrom(src => src.ProfileSpecializations.Select(ps => ps.Specialization)));
+            .ForMember(dest => dest.ProfileId, opt => opt.MapFrom(src => src.ProfileId))
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+            .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+            .ForMember(dest => dest.ProfessionId, opt => opt.MapFrom(src => 
+                src.ProfileSpecializations.Any() && src.ProfileSpecializations.First().Specialization != null
+                    ? src.ProfileSpecializations.First().Specialization.ProfessionId 
+                    : (uint)0))
+            .ForMember(dest => dest.Profession, opt => opt.MapFrom(src => 
+                src.ProfileSpecializations.Any() && src.ProfileSpecializations.First().Specialization != null
+                    ? src.ProfileSpecializations.First().Specialization.Profession 
+                    : null))
+            .ForMember(dest => dest.Bio, opt => opt.MapFrom(src => src.Presentation ?? ""))
+            .ForMember(dest => dest.HourlyRate, opt => opt.MapFrom(src => 0.0))
+            .ForMember(dest => dest.YearsOfExperience, opt => opt.MapFrom(src => 0))
+            .ForMember(dest => dest.IsVerified, opt => opt.MapFrom(src => false))
+            .ForMember(dest => dest.ProfileImageUrl, opt => opt.MapFrom(src => src.User != null ? src.User.PhotoUrl : null))
+            .ForMember(dest => dest.Specializations, opt => opt.MapFrom(src => src.ProfileSpecializations.Select(ps => ps.Specialization)))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+            .ForMember(dest => dest.Experience, opt => opt.MapFrom(src => src.Experience))
+            .ForMember(dest => dest.Presentation, opt => opt.MapFrom(src => src.Presentation));
+
+        // User -> UserResponseDto
+        CreateMap<User, UserResponseDto>();
+
+        // Profession -> ProfessionResultDto
+        CreateMap<Profession, ProfessionResultDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ProfessionId))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ProfessionName))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.ProfessionId, opt => opt.MapFrom(src => src.ProfessionId))
+            .ForMember(dest => dest.ProfessionName, opt => opt.MapFrom(src => src.ProfessionName))
+            .ForMember(dest => dest.Specializations, opt => opt.Ignore());
             
         // ============================================================
         // MAPEOS PARA SESSION
